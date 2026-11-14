@@ -109,8 +109,8 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
 
     const cx = width / 2;
     // Bias the globe upward to keep its lower edge clear of the fixed color-scale rail.
-    const cy = height * 0.47;
-    const radius = Math.min(width * 0.46, height * 0.46) * zoom;
+    const cy = height * 0.46;
+    const radius = Math.min(width * 0.44, height * 0.43) * zoom;
 
     ctx.clearRect(0, 0, width, height);
 
