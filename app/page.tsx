@@ -68,18 +68,16 @@ export default function PolarisDashboard() {
               const target = document.getElementById("workspace");
               if (!target) return;
 
-              const startY = document.documentElement.scrollTop || window.scrollY;
+              const scroller = document.scrollingElement ?? document.documentElement;
+              const startY = scroller.scrollTop;
               const targetY = target.getBoundingClientRect().top + startY;
               const distance = targetY - startY;
-              const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-              if (reduceMotion || Math.abs(distance) < 2) {
-                document.documentElement.scrollTop = targetY;
-                document.body.scrollTop = targetY;
-                return;
-              }
+              if (Math.abs(distance) < 2) return;
 
-              const duration = 2400;
+              // This is an explicit user-triggered cinematic navigation.
+              // Do not short-circuit it based on the OS reduced-motion preference.
+              const duration = 2600;
               const startTime = performance.now();
               const easeInOutCubic = (progress: number) =>
                 progress < 0.5
@@ -92,8 +90,7 @@ export default function PolarisDashboard() {
 
                 // Set the scroll position directly. window.scrollTo() would inherit
                 // the global smooth-scroll rule and interpolate every animation frame.
-                document.documentElement.scrollTop = nextY;
-                document.body.scrollTop = nextY;
+                scroller.scrollTop = nextY;
 
                 if (progress < 1) requestAnimationFrame(animateScroll);
               };
