@@ -29,7 +29,7 @@ export default function StarHeading({ text: value }: Props) {
       if (!maskCtx) return;
 
       const mobile = width < 640;
-      let fontSize = mobile ? Math.min(36, width * 0.085) : Math.min(58, width * 0.046);
+      let fontSize = mobile ? Math.min(48, width * 0.105) : Math.min(76, width * 0.064);
       const maxWidth = width - 8;
       maskCtx.font = "700 " + fontSize + "px Arial, Helvetica, sans-serif";
       while (maskCtx.measureText(value).width > maxWidth && fontSize > 18) {
