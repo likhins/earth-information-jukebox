@@ -29,3 +29,18 @@ button:focus-visible,
   background: rgba(14, 165, 233, 0.35);
   color: #f8fafc;
 }
+
+
+@keyframes astronaut-float {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\\[astronaut-float_8s_ease-in-out_infinite\\] {
+    animation: none !important;
+  }
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+}
