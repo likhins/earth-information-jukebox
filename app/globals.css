@@ -235,7 +235,7 @@ button:focus-visible,
 .polaris-star-heading {
   display: block;
   width: min(100%, 1040px);
-  height: 68px;
+  height: 92px;
   opacity: 1;
   transform: none;
   animation: none;
@@ -244,7 +244,7 @@ button:focus-visible,
   to { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 639px) {
-  .polaris-star-heading { height: 44px; }
+  .polaris-star-heading { height: 60px; }
 }
 
 
