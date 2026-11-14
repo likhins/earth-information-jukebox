@@ -28,6 +28,7 @@ export default function PolarisDashboard() {
   const [sonificationOutput, setSonificationOutput] = useState<SmlSonificationOutput | null>(null);
   const [isInferring, setIsInferring] = useState(false);
   const [utcTime, setUtcTime] = useState<string>('--:--:--');
+  const [scrollOffset, setScrollOffset] = useState(0);
 
   const activeDataset =
     EIC_DATASETS.find((d) => d.id === activeDatasetId) || EIC_DATASETS[0];
@@ -36,6 +37,13 @@ export default function PolarisDashboard() {
     selectedCategory === 'All'
       ? EIC_DATASETS
       : EIC_DATASETS.filter((d) => d.category === selectedCategory);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollOffset(window.scrollY);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const updateClock = () => setUtcTime(new Date().toISOString().slice(11, 19));
@@ -81,8 +89,32 @@ export default function PolarisDashboard() {
         </div>
       </header>
 
-      <section className="relative flex min-h-[calc(100svh-3.5rem)] flex-col justify-center overflow-hidden border-b border-white/[0.07] px-6 py-20 sm:px-10 lg:px-16">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_52%,rgba(14,165,233,0.16),transparent_38%),radial-gradient(ellipse_at_82%_78%,rgba(37,99,235,0.12),transparent_32%)]" />
+      <section className="relative isolate flex min-h-[calc(100svh-3.5rem)] flex-col justify-center overflow-hidden border-b border-white/[0.07] px-6 py-20 sm:px-10 lg:px-16">
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#020712_0%,rgba(2,7,18,0.96)_24%,rgba(2,7,18,0.42)_56%,rgba(2,7,18,0.08)_100%)]" />
+          <img
+            src="/images/earth-backdrop.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute right-[-10%] top-[-13%] h-[94%] w-[88%] object-contain object-right-top opacity-95 will-change-transform sm:right-[-5%] sm:w-[82%] lg:right-[-2%] lg:top-[-18%] lg:h-[108%] lg:w-[78%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.10}px, 0)` }}
+          />
+          <img
+            src="/images/moon-foreground.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute bottom-[-1px] left-0 h-[31%] w-full object-cover object-center opacity-95 will-change-transform sm:h-[36%] lg:h-[39%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.22}px, 0)` }}
+          />
+          <img
+            src="/images/astronaut.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute right-[-10%] top-[13%] h-[75%] w-[68%] object-contain object-center animate-[astronaut-float_8s_ease-in-out_infinite] will-change-transform sm:right-[-3%] sm:w-[61%] lg:right-[1%] lg:top-[6%] lg:h-[88%] lg:w-[55%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.35}px, 0)` }}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-t from-[#030712] via-[#030712]/45 to-transparent" />
+        </div>
         <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.16)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="max-w-2xl">
@@ -105,20 +137,8 @@ export default function PolarisDashboard() {
               Scroll to explore <ArrowDown className="h-3.5 w-3.5" />
             </a>
           </div>
-          <div className="relative mx-auto flex aspect-square w-full max-w-[440px] items-center justify-center">
-            <div className="absolute inset-[7%] rounded-full border border-sky-300/10" />
-            <div className="absolute inset-[17%] rounded-full border border-sky-300/10" />
-            <div className="absolute inset-[27%] rounded-full border border-sky-300/10" />
-            <div className="absolute inset-[9%] animate-[spin_36s_linear_infinite] rounded-full border border-dashed border-sky-200/20" />
-            <div className="absolute inset-[16%] rounded-full bg-[radial-gradient(circle_at_32%_28%,rgba(125,211,252,0.85),rgba(14,116,144,0.55)_24%,rgba(8,47,73,0.94)_62%,rgba(2,6,23,1)_78%)] shadow-[0_0_100px_rgba(14,165,233,0.22),inset_-24px_-20px_60px_rgba(2,6,23,0.9)]" />
-            <div className="absolute inset-[16%] overflow-hidden rounded-full opacity-60">
-              <div className="absolute inset-[-20%] rotate-[-22deg] space-y-7">
-                {Array.from({ length: 10 }, (_, i) => <div key={i} className="h-5 rounded-[50%] border-t border-sky-100/30" />)}
-              </div>
-            </div>
-            <div className="absolute left-[18%] top-[31%] h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_18px_5px_rgba(251,191,36,0.45)]" />
-            <div className="absolute right-[24%] bottom-[31%] h-1.5 w-1.5 rounded-full bg-cyan-200 shadow-[0_0_16px_4px_rgba(103,232,249,0.5)]" />
-            <div className="absolute bottom-[8%] right-[0%] hidden items-center gap-2 rounded-full border border-white/10 bg-slate-950/80 px-3 py-2 font-mono text-[10px] text-slate-400 backdrop-blur sm:flex">
+          <div className="relative mx-auto flex aspect-square w-full max-w-[440px] items-end justify-end">
+            <div className="mb-[8%] flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/75 px-3 py-2 font-mono text-[10px] text-slate-200 backdrop-blur">
               <Waves className="h-3.5 w-3.5 text-sky-300" /> DATA IN / SOUND OUT
             </div>
           </div>
