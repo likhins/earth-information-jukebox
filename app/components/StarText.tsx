@@ -35,13 +35,13 @@ export default function StarText() {
       const left = Math.max(24, width * (mobile ? 0.065 : 0.09));
       const maxWidth = Math.min(width - left * 2, mobile ? width * 0.87 : 700);
       let titleSize = mobile ? Math.min(42, width * 0.105) : Math.min(62, width * 0.052);
-      const teamSize = mobile ? 17 : 22;
+      const teamSize = mobile ? 23 : 30;
       const titleLines = ["Listen beyond", "what you can see."];
 
       text.fillStyle = "#fff";
       text.textBaseline = "top";
       text.textAlign = "center";
-      text.font = "600 " + teamSize + "px Arial, Helvetica, sans-serif";
+      text.font = "700 " + teamSize + "px Arial, Helvetica, sans-serif";
       text.fillText("POLARIS", width / 2, height * 0.145);
 
       text.textAlign = "left";
@@ -56,7 +56,7 @@ export default function StarText() {
       text.fillText(titleLines[1], left, titleY + titleSize * 1.16, maxWidth);
 
       const pixels = text.getImageData(0, 0, mask.width, mask.height).data;
-      const step = mobile ? 2.9 : 3.15;
+      const step = mobile ? 2.25 : 2.45;
       const points: Particle[] = [];
 
       for (let y = 0; y < mask.height; y += step) {
@@ -68,7 +68,7 @@ export default function StarText() {
             points.push({
               x: x + (noise - 0.5) * 0.35,
               y: y + (noise - 0.5) * 0.35,
-              radius: noise > 0.94 ? 1.45 : noise > 0.68 ? 1.12 : 0.88,
+              radius: noise > 0.94 ? 1.55 : noise > 0.68 ? 1.25 : 1.02,
               alpha: 0.76 + noise * 0.24,
             });
           }
@@ -124,8 +124,7 @@ export default function StarText() {
       const count = mobile ? 76 : 116;
       const spacing = span / (count - 1);
       const rows = [
-        { y: height * 0.285, amplitude: mobile ? 7 : 10, phase: 0.2 },
-        { y: height * 0.665, amplitude: mobile ? 9 : 13, phase: 2.1 },
+        { y: height * 0.285, amplitude: mobile ? 9 : 13, phase: 0.2 },
       ];
 
       for (const row of rows) {
