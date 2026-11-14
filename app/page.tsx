@@ -77,7 +77,7 @@ export default function PolarisDashboard() {
 
               // This is an explicit user-triggered cinematic navigation.
               // Do not short-circuit it based on the OS reduced-motion preference.
-              const duration = 2600;
+              const duration = 1800;
               const startTime = performance.now();
               const easeInOutCubic = (progress: number) =>
                 progress < 0.5
