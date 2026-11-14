@@ -232,7 +232,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   return (
     <section
       aria-label="Earth visualization viewport"
-      className="relative h-full w-full select-none overflow-hidden border-y border-white/[0.16] bg-black"
+      className="relative h-full w-full select-none overflow-hidden rounded-2xl border border-white/[0.14] bg-[#070a10] shadow-[0_28px_90px_rgba(0,0,0,0.35)]"
     >
       <div
         ref={containerRef}
@@ -300,7 +300,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       </div>
 
       {/* Color scale and geographic presets */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.15] bg-black/75 px-4 py-3 font-mono text-[9px] tracking-[0.08em] backdrop-blur-sm sm:px-6">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.12] bg-[#05070b]/85 px-5 py-4 font-mono text-[9px] tracking-[0.08em] backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-2.5">
           <span className="text-white/45">{dataset.minVal}</span>
           <div
