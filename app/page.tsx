@@ -68,17 +68,18 @@ export default function PolarisDashboard() {
               const target = document.getElementById("workspace");
               if (!target) return;
 
-              const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-              const startY = window.scrollY;
+              const startY = document.documentElement.scrollTop || window.scrollY;
               const targetY = target.getBoundingClientRect().top + startY;
               const distance = targetY - startY;
+              const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
               if (reduceMotion || Math.abs(distance) < 2) {
-                window.scrollTo(0, targetY);
+                document.documentElement.scrollTop = targetY;
+                document.body.scrollTop = targetY;
                 return;
               }
 
-              const duration = 1900;
+              const duration = 2400;
               const startTime = performance.now();
               const easeInOutCubic = (progress: number) =>
                 progress < 0.5
@@ -87,7 +88,13 @@ export default function PolarisDashboard() {
 
               const animateScroll = (now: number) => {
                 const progress = Math.min((now - startTime) / duration, 1);
-                window.scrollTo(0, startY + distance * easeInOutCubic(progress));
+                const nextY = startY + distance * easeInOutCubic(progress);
+
+                // Set the scroll position directly. window.scrollTo() would inherit
+                // the global smooth-scroll rule and interpolate every animation frame.
+                document.documentElement.scrollTop = nextY;
+                document.body.scrollTop = nextY;
+
                 if (progress < 1) requestAnimationFrame(animateScroll);
               };
 
