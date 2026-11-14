@@ -58,10 +58,9 @@ export default function StarHeading({ text: value }: Props) {
       }
     };
 
-    render();
-    const observer = new ResizeObserver(render);
-    observer.observe(canvas);
-    return () => observer.disconnect();
+    // Render once after layout. This wordmark is intentionally static.
+    const frame = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(frame);
   }, [value]);
 
   return (
