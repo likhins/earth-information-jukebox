@@ -63,7 +63,7 @@ export default function PolarisDashboard() {
             Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
           </a>
         </div>
-        <div className="pointer-events-none absolute -right-[18%] top-1/2 aspect-square w-[82vw] max-w-[1050px] -translate-y-1/2 sm:-right-[13%] sm:w-[75vw] lg:-right-[9%] lg:w-[70vw]" aria-hidden="true">
+        <div className="pointer-events-none absolute right-[1%] top-1/2 aspect-square w-[min(658px,58vw)] -translate-y-1/2 sm:right-[2%] lg:right-[3%]" aria-hidden="true">
           <div className="polaris-wire-globe absolute inset-0">
             <img
               src="/globe.webp"
