@@ -111,7 +111,7 @@ export default function PolarisDashboard() {
       </section>
 
       {/* Interactive workspace */}
-      <main id="workspace" className="relative min-h-[100svh] scroll-mt-0 overflow-visible bg-[#070808] px-3 py-4 text-white sm:px-5 lg:h-[100svh] lg:min-h-0 lg:overflow-hidden lg:px-[3vw] lg:py-4">
+      <main id="workspace" className="relative min-h-[100svh] scroll-mt-0 overflow-visible bg-[#070808] px-3 py-4 text-white sm:px-5 lg:h-[100svh] lg:min-h-0 lg:overflow-hidden lg:px-[3vw] lg:py-3">
         <div className="pointer-events-none absolute inset-x-0 -top-32 z-0 h-64 bg-gradient-to-b from-transparent via-[#070808]/90 to-[#070808]" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.045]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:64px_64px]" />
@@ -119,18 +119,18 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto flex w-full max-w-[1800px] flex-col lg:h-full lg:min-h-0">
-          <header className="polaris-dashboard-title mb-[clamp(28px,4vh,44px)] flex shrink-0 items-start justify-start overflow-visible">
+          <header className="polaris-dashboard-title mb-[clamp(24px,3vh,34px)] flex shrink-0 items-start justify-start overflow-visible">
             <div className="flex w-full min-w-0 flex-col">
               <StarHeading text="Earth, in another language." />
-              <svg className="mt-1 block h-10 w-full overflow-visible" viewBox="0 0 1400 64" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M0 32 C80 32 105 23 180 23 S270 42 350 32 S440 15 520 24 S610 43 700 32 S790 16 880 25 S970 42 1060 32 S1150 17 1240 26 S1330 36 1400 32" fill="none" stroke="rgba(205,225,255,.72)" strokeWidth="2" strokeDasharray="0.1 10" strokeLinecap="round" />
+              <svg className="mt-1 block h-9 w-full overflow-visible" viewBox="0 0 1400 64" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0 32 C95 32 110 22 205 22 S300 43 395 32 S490 15 585 24 S680 44 775 32 S870 15 965 25 S1060 43 1155 32 S1250 18 1400 32" fill="none" stroke="rgba(205,225,255,.78)" strokeWidth="2" strokeDasharray="0.1 10" strokeLinecap="round" />
               </svg>
               <p className="mt-1 font-sans text-[13px] font-semibold tracking-[-0.035em] text-white/45">
                 Listen beyond what you can see.
               </p>
             </div>
           </header>
-          <div className="grid min-h-[720px] grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:min-h-0 lg:flex-1 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid min-h-[620px] grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:min-h-0 lg:flex-1 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
@@ -196,15 +196,15 @@ export default function PolarisDashboard() {
             </aside>
 
             {/* Spatial instrument and sound processor */}
-            <div className="order-2 flex min-h-0 min-w-0 flex-col gap-2 bg-[#090a0a] p-2.5 sm:p-3 lg:p-3">
+            <div className="order-2 flex min-h-0 min-w-0 flex-col gap-2 bg-[#090a0a] p-2 sm:p-2.5 lg:p-2.5">
               <section id="field-explorer" className="flex min-h-0 flex-1 flex-col scroll-mt-6">
-                <div className="mt-1 min-h-[420px] flex-1 lg:min-h-0">
+                <div className="mt-1 min-h-[380px] flex-1 lg:min-h-0">
                   <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
                 </div>
               </section>
 
               <div id="sonic-studio" className="shrink-0 scroll-mt-6">
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-1 flex items-center justify-between">
                   <div>
                     <p className="mb-0.5 font-mono text-[7px] uppercase tracking-[0.22em] text-[#e58a56]">02 / Signal synthesis</p>
                     <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Sonic studio</h3>
