@@ -246,3 +246,12 @@ button:focus-visible,
 @media (max-width: 639px) {
   .polaris-star-heading { height: 44px; }
 }
+
+
+/* Dashboard heading is a static star-particle wordmark, never a growing animation. */
+.polaris-dashboard-title .polaris-star-heading {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
