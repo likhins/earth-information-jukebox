@@ -173,31 +173,9 @@ export default function PolarisDashboard() {
             </div>
           </header>
 
-          <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-[58px_270px_minmax(0,1fr)] xl:grid-cols-[62px_292px_minmax(0,1fr)] xl:gap-4">
-            {/* Functional section rail */}
-            <nav aria-label="Workspace sections" className="order-1 flex items-center justify-around gap-1 rounded-2xl border border-white/[0.11] bg-[#101111] p-2 lg:sticky lg:top-6 lg:h-fit lg:flex-col lg:justify-start lg:gap-3 lg:py-4">
-              {[
-                { href: '#dataset-registry', label: 'Data', icon: Layers },
-                { href: '#field-explorer', label: 'Globe', icon: Compass },
-                { href: '#sonic-studio', label: 'Audio', icon: AudioLines },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    title={item.label}
-                    className="group flex min-w-[64px] flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-white/38 transition hover:bg-white/[0.06] hover:text-white/90 lg:min-w-0 lg:w-full"
-                  >
-                    <Icon className="h-[17px] w-[17px] transition-colors group-hover:text-[#f18a51]" strokeWidth={1.6} />
-                    <span className="font-mono text-[7px] uppercase tracking-[0.16em]">{item.label}</span>
-                  </a>
-                );
-              })}
-            </nav>
-
+          <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-[292px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-4">
             {/* Dataset registry */}
-            <aside id="dataset-registry" aria-label="Dataset registry" className="order-2 min-h-0 scroll-mt-6 overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0d0e0e] shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+            <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0d0e0e] shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
               <div className="flex items-center justify-between border-b border-white/[0.1] px-4 py-4 lg:px-5">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.1] bg-white/[0.035] text-[#e58a56]">
@@ -270,7 +248,7 @@ export default function PolarisDashboard() {
             </aside>
 
             {/* Spatial instrument and sound processor */}
-            <div className="order-3 min-w-0 space-y-4">
+            <div className="order-2 min-w-0 space-y-4">
               <section id="field-explorer" className="scroll-mt-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-3">
                   <div>
