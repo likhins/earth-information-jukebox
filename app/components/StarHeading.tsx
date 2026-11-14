@@ -29,7 +29,7 @@ export default function StarHeading({ text: value }: Props) {
       if (!maskCtx) return;
 
       const mobile = width < 640;
-      let fontSize = mobile ? Math.min(34, width * 0.09) : Math.min(66, width * 0.055);
+      let fontSize = mobile ? Math.min(38, width * 0.095) : Math.min(72, width * 0.06);
       const maxWidth = width - 8;
       maskCtx.font = "700 " + fontSize + "px Arial, Helvetica, sans-serif";
       while (maskCtx.measureText(value).width > maxWidth && fontSize > 18) {
@@ -52,7 +52,7 @@ export default function StarHeading({ text: value }: Props) {
           const noise = seed - Math.floor(seed);
           ctx.beginPath();
           ctx.fillStyle = "rgba(232,242,255," + (0.78 + noise * 0.22) + ")";
-          ctx.arc(x, y, noise > 0.88 ? 1.35 : 0.95, 0, Math.PI * 2);
+          ctx.arc(x, y, noise > 0.88 ? 1.45 : 1.05, 0, Math.PI * 2);
           ctx.fill();
         }
       }
