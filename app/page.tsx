@@ -64,12 +64,26 @@ export default function PolarisDashboard() {
           <div className="absolute inset-x-0 -bottom-1 h-40 bg-gradient-to-b from-transparent to-black" />
         </div>
         <div className="relative z-10 w-full max-w-[440px]">
-          <p className="mb-4 font-mono text-[10px] tracking-[0.28em] text-white/55 uppercase">Polaris · Earth Information Jukebox</p>
-          <h1 className="text-3xl font-medium leading-[1.08] tracking-[-0.045em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.7)] sm:text-5xl">Listen beyond<br />what you can see.</h1>
-          <p className="mt-4 max-w-[320px] text-sm leading-6 text-white/65 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">An exploration of our planet through data, patterns and sound.</p>
-          <a href="#workspace" className="mt-7 inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
+          <svg className="polaris-constellation pointer-events-none absolute -left-8 -top-16 h-[330px] w-[390px]" viewBox="0 0 390 330" fill="none" aria-hidden="true">
+            <path d="M18 82 L76 34 L124 66 L188 18 L238 72 L306 42 L358 96 M76 34 L64 126 L124 66 L154 144 L238 72 L268 154 L358 96 M64 126 L22 196 L108 224 L154 144 L220 236 L268 154 L342 244" stroke="white" strokeOpacity=".24" strokeWidth=".8"/>
+            <g fill="#fff">
+              <circle cx="18" cy="82" r="1.8"/><circle cx="76" cy="34" r="2.1"/><circle cx="124" cy="66" r="1.7"/><circle cx="188" cy="18" r="2.3"/><circle cx="238" cy="72" r="1.8"/><circle cx="306" cy="42" r="2"/><circle cx="358" cy="96" r="1.7"/><circle cx="64" cy="126" r="1.5"/><circle cx="154" cy="144" r="1.8"/><circle cx="268" cy="154" r="1.7"/><circle cx="22" cy="196" r="1.6"/><circle cx="108" cy="224" r="2"/><circle cx="220" cy="236" r="1.7"/><circle cx="342" cy="244" r="1.8"/>
+            </g>
+          </svg>
+          <p className="polaris-copy polaris-copy-label mb-4 font-mono text-[10px] tracking-[0.28em] text-white/65 uppercase">Polaris · Earth Information Jukebox</p>
+          <h1 className="polaris-copy polaris-copy-title text-3xl font-medium leading-[1.08] tracking-[-0.045em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.7)] sm:text-5xl">
+            <span className="block">Listen beyond</span>
+            <span className="block">what you can see.</span>
+          </h1>
+          <p className="polaris-copy polaris-copy-description mt-4 max-w-[320px] text-sm leading-6 text-white/70 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">An exploration of our planet through data, patterns and sound.</p>
+          <a href="#workspace" className="polaris-copy polaris-copy-link mt-7 inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
             Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
           </a>
+        </div>
+        <div className="polaris-shooting-stars pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <span className="polaris-shooting-star polaris-shooting-star-one" />
+          <span className="polaris-shooting-star polaris-shooting-star-two" />
+          <span className="polaris-shooting-star polaris-shooting-star-three" />
         </div>
       </section>
 
