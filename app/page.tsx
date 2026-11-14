@@ -12,7 +12,6 @@ import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
 import { Activity, ArrowDownRight, Layers, ScanLine } from 'lucide-react';
-import { globeImage } from './lib/globeImage';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -67,7 +66,7 @@ export default function PolarisDashboard() {
         <div className="pointer-events-none absolute -right-[18%] top-1/2 aspect-square w-[82vw] max-w-[1050px] -translate-y-1/2 sm:-right-[13%] sm:w-[75vw] lg:-right-[9%] lg:w-[70vw]" aria-hidden="true">
           <div className="polaris-wire-globe absolute inset-0">
             <img
-              src={globeImage}
+              src="/globe.webp"
               alt="Monochrome dotted wireframe globe"
               className="h-full w-full object-contain"
               draggable={false}
