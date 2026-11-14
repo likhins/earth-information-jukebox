@@ -111,7 +111,7 @@ export default function PolarisDashboard() {
       </section>
 
       {/* Interactive workspace */}
-      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-3 py-4 text-white sm:px-5 lg:h-[100svh] lg:min-h-[680px] lg:px-[3vw] lg:py-4">
+      <main id="workspace" className="relative min-h-[100svh] scroll-mt-0 overflow-visible bg-[#070808] px-3 py-4 text-white sm:px-5 lg:min-h-[100svh] lg:px-[3vw] lg:py-6">
         <div className="pointer-events-none absolute inset-x-0 -top-32 z-0 h-64 bg-gradient-to-b from-transparent via-[#070808]/90 to-[#070808]" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.045]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:64px_64px]" />
@@ -132,7 +132,7 @@ export default function PolarisDashboard() {
               </div>
             </div>
           </header>
-          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-104px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid min-h-[760px] grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:min-h-[calc(100svh-180px)] lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
