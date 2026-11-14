@@ -49,9 +49,8 @@ export default function PolarisDashboard() {
   }, [activeDataset, latestFeatures]);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-black text-slate-100 flex flex-col selection:bg-sky-500/30">
-
-
+    <div className="min-h-screen w-full overflow-x-hidden bg-black text-white flex flex-col selection:bg-white/20">
+      {/* Landing / introduction — kept intact */}
       <section className="relative isolate flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] bg-black px-7 py-20 sm:px-12 lg:px-[9vw]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_48%,rgba(255,255,255,0.055),transparent_43%)]" />
@@ -77,108 +76,118 @@ export default function PolarisDashboard() {
         </div>
       </section>
 
-      {/* Scroll down to enter the interactive workspace */}
-      <main id="workspace" className="min-h-screen scroll-mt-0 p-3 sm:p-5 lg:min-h-[calc(100svh-3.5rem)]">
-        <div className="mx-auto grid min-h-0 max-w-[1800px] grid-cols-1 gap-3 lg:min-h-[calc(100svh-7.5rem)] lg:grid-cols-[280px_1fr]">
-        {/* Left Stream Rail */}
-        <aside
-          aria-label="Dataset registry"
-          className="min-h-0 flex flex-col bg-slate-950/70 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3 font-mono lg:overflow-hidden"
-        >
-          <div className="flex items-center justify-between px-1 pb-2.5">
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <h2 className="text-[11px] font-semibold tracking-wider uppercase">
-                Data Streams
-              </h2>
-            </div>
-            <span className="text-[10px] text-slate-500">{EIC_DATASETS.length} streams</span>
-          </div>
-
-          {/* Sleek Category Tabs */}
-          <div className="flex flex-wrap gap-1 mb-2.5">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-2 py-0.5 rounded-md text-[10px] transition cursor-pointer ${
-                  selectedCategory === cat
-                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-semibold'
-                    : 'text-slate-500 hover:text-slate-300 border border-transparent'
-                }`}
-              >
-                {cat === 'Land & Human' ? 'Land' : cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Compact Stream List */}
-          <div
-            role="radiogroup"
-            aria-label="Select a dataset"
-            className="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin max-h-64 lg:max-h-none"
-          >
-            {filteredDatasets.map((ds) => {
-              const selected = ds.id === activeDatasetId;
-              return (
-                <button
-                  key={ds.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => setActiveDatasetId(ds.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-2 ${
-                    selected
-                      ? 'bg-gradient-to-r from-sky-500/15 to-transparent border border-sky-500/40 text-white'
-                      : 'bg-white/[0.02] hover:bg-white/[0.05] border border-transparent text-slate-400'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold truncate">{ds.name}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1.5">
-                      <span className={selected ? 'text-sky-400' : ''}>{ds.shortCode}</span>
-                      <span>·</span>
-                      <span>{ds.unit}</span>
-                    </div>
-                  </div>
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: ds.fallbackColors[2] }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Dataset Summary Footer */}
-          <div className="mt-2.5 pt-2.5 border-t border-white/[0.06] px-1">
-            <div className="flex items-center gap-1.5 mb-1.5 text-[9px] tracking-[0.18em] uppercase text-slate-500">
-              <ScanLine className="w-3 h-3 text-sky-400" /> Active observation
-            </div>
-            <p className="text-[11px] leading-relaxed text-slate-400 font-sans line-clamp-2">
-              {activeDataset.description}
-            </p>
-          </div>
-        </aside>
-
-        {/* Right Column: Flexible Globe Canvas + Compact Bottom Audio Deck */}
-        <div className="min-h-0 flex flex-col gap-3">
-          <div className="flex items-center justify-between px-1 font-mono lg:hidden">
-            <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase text-slate-400">
-              <Activity className="w-3.5 h-3.5 text-sky-400" /> Live field explorer
-            </span>
-            <span className="text-[10px] text-slate-500">drag · zoom · sample</span>
-          </div>
-          <div className="h-[440px] min-h-0 sm:h-[520px] lg:h-auto lg:flex-1">
-            <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
-          </div>
-          <SonificationWorkstation
-            output={sonificationOutput}
-            onGenerate={handleGenerateTrack}
-            isInferring={isInferring}
-          />
+      {/* Interactive workspace */}
+      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-black px-4 py-16 sm:px-7 lg:px-[5vw]">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.035]" aria-hidden="true">
+          <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:90px_90px]" />
         </div>
+        <div className="relative mx-auto max-w-[1680px]">
+          <header className="mb-8 flex flex-col justify-between gap-5 border-b border-white/[0.12] pb-5 sm:flex-row sm:items-end">
+            <div>
+              <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.3em] text-white/35">Polaris / Field interface</p>
+              <h2 className="text-2xl font-medium tracking-[-0.045em] text-white sm:text-3xl">Earth, in another language.</h2>
+              <p className="mt-2 max-w-xl text-xs leading-6 text-white/45">Move through the signal. Find a region. Listen to what the data reveals.</p>
+            </div>
+            <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
+              <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-white/70" /> Interactive field</span>
+              <span className="text-white/20">/</span>
+              <span>01 — 09</span>
+            </div>
+          </header>
+
+          <div className="grid min-h-0 grid-cols-1 gap-8 lg:grid-cols-[250px_minmax(0,1fr)] xl:gap-12">
+            {/* Dataset index */}
+            <aside aria-label="Dataset registry" className="min-h-0 font-mono lg:pt-1">
+              <div className="mb-4 flex items-center justify-between border-b border-white/[0.12] pb-3">
+                <div className="flex items-center gap-2 text-white/75">
+                  <Layers className="h-3.5 w-3.5 text-white/55" />
+                  <h3 className="text-[10px] font-medium uppercase tracking-[0.2em]">Data streams</h3>
+                </div>
+                <span className="text-[9px] tabular-nums text-white/35">{EIC_DATASETS.length} available</span>
+              </div>
+
+              <div className="mb-5 flex flex-wrap gap-x-3 gap-y-2 border-b border-white/[0.08] pb-4">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`cursor-pointer text-[9px] uppercase tracking-[0.12em] transition-colors ${
+                      selectedCategory === cat
+                        ? 'text-white'
+                        : 'text-white/35 hover:text-white/75'
+                    }`}
+                  >
+                    {cat === 'Land & Human' ? 'Land' : cat}
+                    {selectedCategory === cat && <span className="ml-1.5 text-white/45">↗</span>}
+                  </button>
+                ))}
+              </div>
+
+              <div role="radiogroup" aria-label="Select a dataset" className="max-h-72 space-y-0 overflow-y-auto pr-2 lg:max-h-[calc(100svh-340px)] polaris-scroll">
+                {filteredDatasets.map((ds, index) => {
+                  const selected = ds.id === activeDatasetId;
+                  return (
+                    <button
+                      key={ds.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => setActiveDatasetId(ds.id)}
+                      className={`group flex w-full cursor-pointer items-start gap-3 border-b border-white/[0.08] py-3.5 text-left transition-colors ${
+                        selected ? 'text-white' : 'text-white/40 hover:text-white/80'
+                      }`}
+                    >
+                      <span className={`pt-0.5 text-[9px] tabular-nums ${
+                        selected ? 'text-white/70' : 'text-white/20'
+                      }`}>{String(index + 1).padStart(2, '0')}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[11px] font-medium tracking-[0.01em]">{ds.name}</span>
+                        <span className="mt-1 block text-[9px] tracking-[0.08em] text-white/30">
+                          {ds.shortCode}<span className="px-1.5 text-white/15">/</span>{ds.unit}
+                        </span>
+                      </span>
+                      <span
+                        className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full transition-opacity ${
+                          selected ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'
+                        }`}
+                        style={{ backgroundColor: ds.fallbackColors[2] }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 border-t border-white/[0.12] pt-4">
+                <div className="mb-2 flex items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-white/35">
+                  <ScanLine className="h-3 w-3" /> Active observation
+                </div>
+                <p className="font-sans text-[11px] leading-5 text-white/55">{activeDataset.description}</p>
+              </div>
+            </aside>
+
+            {/* Globe and sonic instrument */}
+            <div className="min-w-0">
+              <div className="mb-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.17em] text-white/35">
+                <span className="inline-flex items-center gap-2"><Activity className="h-3 w-3" /> Live field explorer</span>
+                <span>Drag / rotate · Scroll / zoom</span>
+              </div>
+              <div className="h-[440px] min-h-0 sm:h-[540px] lg:h-[min(62vw,680px)] lg:max-h-[680px]">
+                <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
+              </div>
+              <div className="mt-8">
+                <SonificationWorkstation
+                  output={sonificationOutput}
+                  onGenerate={handleGenerateTrack}
+                  isInferring={isInferring}
+                />
+              </div>
+            </div>
+          </div>
+          <footer className="mt-12 flex flex-col justify-between gap-2 border-t border-white/[0.1] pt-4 font-mono text-[8px] uppercase tracking-[0.2em] text-white/25 sm:flex-row">
+            <span>Polaris · Earth Information Jukebox</span>
+            <span>Observe slowly. Listen closely.</span>
+          </footer>
         </div>
       </main>
     </div>
