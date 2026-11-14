@@ -300,7 +300,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         </button>
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))
+          onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
           aria-label="Zoom out"
           className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
