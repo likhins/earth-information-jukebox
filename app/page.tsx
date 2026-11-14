@@ -121,7 +121,7 @@ export default function PolarisDashboard() {
         <div className="relative mx-auto max-w-[1800px]">
           <header className="polaris-dashboard-title mb-[clamp(150px,20vh,280px)] flex min-h-[76px] items-center justify-start overflow-visible">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <StarHeading text="Earth, in another language." />
+              <div className="w-full max-w-[1040px]"><StarHeading text="Earth, in another language." /></div>
               <div className="flex items-center gap-3">
                 <span className="polaris-heading-wave" aria-hidden="true">
                   <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
