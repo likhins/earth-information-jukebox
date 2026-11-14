@@ -121,7 +121,12 @@ export default function PolarisDashboard() {
         <div className="relative mx-auto max-w-[1800px]">
           <header className="polaris-dashboard-title mb-[clamp(120px,16vh,210px)] flex min-h-[76px] items-center justify-start overflow-visible">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <div className="w-full max-w-[1200px]"><StarHeading text="Earth, in another language." /></div>
+              <div className="relative w-full max-w-[1400px]">
+                <svg className="pointer-events-none absolute inset-x-0 top-1/2 z-0 h-16 w-full -translate-y-1/2 overflow-visible opacity-45" viewBox="0 0 1400 64" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M0 32 C90 32 100 25 180 25 S270 39 350 32 S440 18 520 25 S610 42 700 32 S790 18 880 26 S970 42 1060 32 S1150 18 1240 27 S1330 35 1400 32" fill="none" stroke="rgba(190,215,245,.55)" strokeWidth="1.2" strokeDasharray="1 8" strokeLinecap="round" />
+                </svg>
+                <div className="relative z-10"><StarHeading text="Earth, in another language." /></div>
+              </div>
               <div className="flex items-center gap-3">
                 <span className="polaris-heading-wave" aria-hidden="true">
                   <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
