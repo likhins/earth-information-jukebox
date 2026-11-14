@@ -191,12 +191,10 @@ export default function PolarisDashboard() {
             {/* Spatial instrument and sound processor */}
             <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 bg-[#090a0a] p-3 sm:p-4 lg:p-4">
               <section id="field-explorer" className="flex min-h-0 flex-[1.35] flex-col scroll-mt-6">
-                <div className="flex shrink-0 flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-2">
-                  <div>
-                    <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
-                    <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">{activeDataset.shortCode} <span className="px-1 text-white/15">/</span> {activeDataset.name}</p>
-                    
-                  </div>
+                <div className="polaris-section-title flex shrink-0 items-center border-b border-white/[0.12] pb-2">
+                  <h2 className="font-sans text-[clamp(1.15rem,1.8vw,1.65rem)] font-medium leading-none tracking-[-0.065em] text-[#f2f0eb]">
+                    Earth, in another language.
+                  </h2>
                 </div>
                 <div className="mt-2 min-h-[340px] flex-1 lg:min-h-0">
                   <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
