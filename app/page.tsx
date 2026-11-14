@@ -119,11 +119,11 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto max-w-[1800px]">
-          <header className="polaris-dashboard-title mb-[clamp(120px,16vh,210px)] flex min-h-[76px] items-center justify-start overflow-visible">
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <div className="relative w-full max-w-[1400px]">
-                <svg className="pointer-events-none absolute inset-x-0 top-1/2 z-0 h-16 w-full -translate-y-1/2 overflow-visible opacity-45" viewBox="0 0 1400 64" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M0 32 C90 32 100 25 180 25 S270 39 350 32 S440 18 520 25 S610 42 700 32 S790 18 880 26 S970 42 1060 32 S1150 18 1240 27 S1330 35 1400 32" fill="none" stroke="rgba(190,215,245,.55)" strokeWidth="1.2" strokeDasharray="1 8" strokeLinecap="round" />
+          <header className="polaris-dashboard-title mb-10 lg:mb-12 flex min-h-[76px] items-center justify-start overflow-visible">
+            <div className="flex w-full min-w-0 flex-col gap-1.5">
+              <div className="relative w-full max-w-none">
+                <svg className="pointer-events-none absolute inset-x-0 top-full z-0 mt-1 h-12 w-full overflow-visible opacity-90" viewBox="0 0 1400 64" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M0 32 C90 32 100 25 180 25 S270 39 350 32 S440 18 520 25 S610 42 700 32 S790 18 880 26 S970 42 1060 32 S1150 18 1240 27 S1330 35 1400 32" fill="none" stroke="rgba(205,225,255,.82)" strokeWidth="1.8" strokeDasharray="1 7" strokeLinecap="round" />
                 </svg>
                 <div className="relative z-10"><StarHeading text="Earth, in another language." /></div>
               </div>
@@ -137,7 +137,7 @@ export default function PolarisDashboard() {
               </div>
             </div>
           </header>
-          <div className="grid min-h-[760px] grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:min-h-[calc(100svh-180px)] lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid min-h-[760px] grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:min-h-[calc(100svh-110px)] lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
@@ -205,7 +205,7 @@ export default function PolarisDashboard() {
             {/* Spatial instrument and sound processor */}
             <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 bg-[#090a0a] p-3 sm:p-4 lg:p-4">
               <section id="field-explorer" className="flex min-h-0 flex-[1.35] flex-col scroll-mt-6">
-                <div className="mt-2 min-h-[480px] flex-1 lg:min-h-[500px]">
+                <div className="mt-2 min-h-[620px] flex-1 lg:min-h-[660px]">
                   <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
                 </div>
               </section>
