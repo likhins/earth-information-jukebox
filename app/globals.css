@@ -229,3 +229,23 @@ button:focus-visible,
   .polaris-dashboard-title h1 { animation: none; opacity: 1; transform: none; }
   .polaris-heading-wave i { animation: none; transform: none; }
 }
+
+
+/* Reuse the landing hero's star-particle lettering for the dashboard title. */
+.polaris-star-heading {
+  display: block;
+  width: min(100%, 760px);
+  height: 48px;
+  opacity: 0;
+  transform: translateY(7px);
+  animation: polaris-star-heading-in 950ms ease-out 120ms forwards;
+}
+@keyframes polaris-star-heading-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 639px) {
+  .polaris-star-heading { height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .polaris-star-heading { animation: none; opacity: 1; transform: none; }
+}
