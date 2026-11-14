@@ -98,9 +98,9 @@ export default function SonificationWorkstation({
   return (
     <section
       aria-label="Sonification workstation"
-      className="border-y border-white/[0.16] bg-black py-5 font-mono sm:py-6"
+      className="rounded-2xl border border-white/[0.12] bg-[#080a0d] px-5 py-6 font-mono shadow-[0_24px_80px_rgba(0,0,0,0.2)] sm:px-7 sm:py-7"
     >
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.1] pb-5">
         <div className="flex items-center gap-3 text-[9px] uppercase tracking-[0.22em] text-white/55">
           <AudioLines className="h-3.5 w-3.5 text-white/65" />
           Sonic studio
@@ -117,7 +117,7 @@ export default function SonificationWorkstation({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 items-center gap-6 xl:grid-cols-[250px_minmax(0,1fr)] xl:gap-9">
+      <div className="grid grid-cols-1 items-center gap-7 xl:grid-cols-[270px_minmax(0,1fr)] xl:gap-10">
         {/* Transport and signal readout */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
@@ -165,7 +165,7 @@ export default function SonificationWorkstation({
 
         {/* Four-lane sequence matrix */}
         <div className="flex min-w-0 flex-col gap-3">
-          <div className="space-y-2">
+          <div className="space-y-2.5 rounded-xl border border-white/[0.08] bg-black/30 p-4 sm:p-5">
             {[
               { name: 'LEAD', active: (i: number) => (output?.leadSteps[i] ?? -1) >= 0, color: 'bg-white' },
               { name: 'PAD', active: (i: number) => Boolean(output && (i === 0 || i === 8)), color: 'bg-white/75' },
@@ -183,7 +183,7 @@ export default function SonificationWorkstation({
                   return (
                     <div
                       key={i}
-                      className={`h-2.5 transition-all duration-100 ${
+                      className={`h-3 rounded-[2px] transition-all duration-100 ${
                         isOn ? stem.color : 'bg-white/[0.07]'
                       } ${isCurrent ? 'outline outline-1 outline-white outline-offset-2' : ''}`}
                     />
