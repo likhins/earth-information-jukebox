@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { SmlSonificationOutput } from '../lib/datasets';
-import { Play, Square, Sparkles } from 'lucide-react';
+import { AudioLines, Play, Square, Sparkles } from 'lucide-react';
 
 interface SonificationWorkstationProps {
   output: SmlSonificationOutput | null;
@@ -100,6 +100,19 @@ export default function SonificationWorkstation({
       aria-label="Sonification workstation"
       className="shrink-0 bg-slate-950/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3.5 font-mono"
     >
+      <div className="mb-3 flex items-center justify-between gap-3 px-0.5">
+        <div className="flex items-center gap-2 text-[10px] tracking-[0.16em] uppercase text-slate-400">
+          <AudioLines className="h-3.5 w-3.5 text-sky-400" /> Sonic studio
+        </div>
+        <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase ${
+          isInferring ? 'text-amber-300' : output ? 'text-emerald-300' : 'text-slate-500'
+        }`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${
+            isInferring ? 'bg-amber-400 animate-pulse' : output ? 'bg-emerald-400' : 'bg-slate-600'
+          }`} />
+          {isInferring ? 'Mapping signal' : output ? 'Sequence ready' : 'Awaiting sample'}
+        </span>
+      </div>
       <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr] gap-4 items-center">
         {/* Left: Transport & Telemetry */}
         <div className="flex flex-col justify-between gap-2.5">
@@ -111,7 +124,7 @@ export default function SonificationWorkstation({
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition cursor-pointer shadow-[0_0_20px_rgba(56,189,248,0.25)]"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              {isInferring ? 'Inferring...' : 'Sonify Region'}
+              {isInferring ? 'Mapping...' : 'Sonify Region'}
             </button>
 
             <button
@@ -179,7 +192,7 @@ export default function SonificationWorkstation({
           {/* Single-Line Live Scientific Narration */}
           <p
             aria-live="polite"
-            className="text-[11px] text-slate-400 font-sans truncate pt-1 border-t border-white/[0.06]"
+            className="text-[11px] text-slate-400 font-sans sm:truncate pt-1 border-t border-white/[0.06]"
           >
             {output
               ? output.narration

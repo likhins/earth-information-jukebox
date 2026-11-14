@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { EicDataset, ReticleFeatures } from '../lib/datasets';
-import { MapPin, ZoomIn, ZoomOut } from 'lucide-react';
+import { Crosshair, MapPin, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface EarthViewportProps {
   dataset: EicDataset;
@@ -90,7 +90,8 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   );
 
   useEffect(() => {
-    computeFeatures(lat, lon);
+    const frame = window.requestAnimationFrame(() => computeFeatures(lat, lon));
+    return () => window.cancelAnimationFrame(frame);
   }, [lat, lon, dataset, computeFeatures]);
 
   useEffect(() => {
@@ -253,13 +254,14 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
 
       {/* Floating Top-Left Dataset Pill */}
       <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-950/65 backdrop-blur-md border border-white/10 font-mono text-xs">
+        <Crosshair className="h-3.5 w-3.5 text-sky-400" />
         <span className="text-sky-400 font-semibold">{dataset.shortCode}</span>
         <span className="text-slate-600">·</span>
         <span className="text-slate-200">{dataset.name}</span>
       </div>
 
       {/* Floating Top-Right Telemetry Pill */}
-      <div className="pointer-events-none absolute top-3.5 right-3.5 z-10 flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-950/65 backdrop-blur-md border border-white/10 font-mono text-xs">
+      <div className="pointer-events-none absolute top-3.5 right-3.5 z-10 hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-950/65 backdrop-blur-md border border-white/10 font-mono text-xs">
         <span className="text-slate-400">
           {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}{' '}
           {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
@@ -307,7 +309,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       </div>
 
       {/* Floating Bottom Legend & Presets */}
-      <div className="z-10 absolute bottom-3 inset-x-3.5 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[11px] font-mono">
+      <div className="z-10 absolute bottom-3 inset-x-3.5 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-2xl sm:rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[11px] font-mono">
         <div className="flex items-center gap-2.5">
           <span className="text-slate-400">{dataset.minVal}</span>
           <div
