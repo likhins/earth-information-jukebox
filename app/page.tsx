@@ -12,6 +12,7 @@ import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
 import { Activity, ArrowDownRight, Layers, ScanLine } from 'lucide-react';
+import { globeImage } from './lib/globeImage';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -48,10 +49,10 @@ export default function PolarisDashboard() {
   }, [activeDataset, latestFeatures]);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#030712] text-slate-100 flex flex-col selection:bg-sky-500/30">
+    <div className="min-h-screen w-full overflow-x-hidden bg-black text-slate-100 flex flex-col selection:bg-sky-500/30">
 
 
-      <section className="relative isolate flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] bg-[#050505] px-7 py-20 sm:px-12 lg:px-[9vw]">
+      <section className="relative isolate flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] bg-black px-7 py-20 sm:px-12 lg:px-[9vw]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_48%,rgba(255,255,255,0.055),transparent_43%)]" />
           <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:90px_90px]" />
@@ -66,47 +67,12 @@ export default function PolarisDashboard() {
         </div>
         <div className="pointer-events-none absolute -right-[18%] top-1/2 aspect-square w-[82vw] max-w-[1050px] -translate-y-1/2 sm:-right-[13%] sm:w-[75vw] lg:-right-[9%] lg:w-[70vw]" aria-hidden="true">
           <div className="polaris-wire-globe absolute inset-0">
-            <svg viewBox="0 0 1000 1000" className="h-full w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="globeFade" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="white" stopOpacity=".92" />
-                  <stop offset="72%" stopColor="white" stopOpacity=".65" />
-                  <stop offset="100%" stopColor="white" stopOpacity=".08" />
-                </radialGradient>
-                <clipPath id="globeClip"><circle cx="500" cy="500" r="468" /></clipPath>
-              </defs>
-              <circle cx="500" cy="500" r="468" stroke="white" strokeOpacity=".3" strokeWidth="1.2" />
-              <g clipPath="url(#globeClip)" stroke="white" strokeOpacity=".36" strokeWidth="1.1">
-                <ellipse cx="500" cy="500" rx="468" ry="118" />
-                <ellipse cx="500" cy="500" rx="468" ry="235" />
-                <ellipse cx="500" cy="500" rx="468" ry="352" />
-                <ellipse cx="500" cy="500" rx="118" ry="468" />
-                <ellipse cx="500" cy="500" rx="235" ry="468" />
-                <ellipse cx="500" cy="500" rx="352" ry="468" />
-                <path d="M500 32 C350 180 350 820 500 968" />
-                <path d="M500 32 C650 180 650 820 500 968" />
-                <path d="M32 500 H968" />
-              </g>
-              <g clipPath="url(#globeClip)" fill="url(#globeFade)" opacity=".8">
-                {Array.from({length: 22}, (_, row) => (
-                  <g key={row}>
-                    {Array.from({length: 34}, (_, col) => {
-                      const x = 90 + col * 25 + (row % 2) * 12;
-                      const y = 110 + row * 36;
-                      const nx = (x - 500) / 470;
-                      const ny = (y - 500) / 470;
-                      const inside = nx * nx + ny * ny < 1;
-                      const continent =
-                        (nx > -0.72 && nx < -0.18 && ny > -0.35 && ny < 0.35) ||
-                        (nx > -0.22 && nx < 0.2 && ny > -0.05 && ny < 0.72) ||
-                        (nx > 0.18 && nx < 0.72 && ny > -0.52 && ny < 0.22) ||
-                        (nx > 0.38 && nx < 0.72 && ny > 0.24 && ny < 0.58);
-                      return inside && continent ? <circle key={col} cx={x} cy={y} r="2.1" /> : null;
-                    })}
-                  </g>
-                ))}
-              </g>
-            </svg>
+            <img
+              src={globeImage}
+              alt="Monochrome dotted wireframe globe"
+              className="h-full w-full object-contain"
+              draggable={false}
+            />
           </div>
         </div>
       </section>
