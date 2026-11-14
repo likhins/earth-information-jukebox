@@ -49,7 +49,7 @@ export default function PolarisDashboard() {
   }, [activeDataset, latestFeatures]);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-black text-white flex flex-col selection:bg-white/20">
+    <div className="min-h-screen w-full overflow-x-clip bg-black text-white flex flex-col selection:bg-white/20">
       {/* Cinematic Earth landing section */}
       <section className="relative isolate flex min-h-[100svh] items-start overflow-hidden border-b border-white/[0.08] bg-black px-7 pb-20 pt-[22svh] sm:px-12 lg:px-[9vw]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
