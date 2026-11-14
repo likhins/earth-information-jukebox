@@ -12,7 +12,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { ArrowDownRight, AudioLines, Layers, ScanLine } from 'lucide-react';
+import { ArrowDownRight, Layers } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -215,10 +215,6 @@ export default function PolarisDashboard() {
             </div>
           </div>
 
-          <footer className="mt-8 flex flex-col justify-between gap-2 border-t border-white/[0.1] pt-4 font-mono text-[7px] uppercase tracking-[0.2em] text-white/25 sm:flex-row">
-            <span>POLARIS / Earth Information Jukebox</span>
-            <span>Observe slowly. Listen closely.</span>
-          </footer>
         </div>
       </main>
     </div>
