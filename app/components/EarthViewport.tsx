@@ -16,7 +16,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   const [canvasSize, setCanvasSize] = useState({ width: 900, height: 520 });
   const [lat, setLat] = useState<number>(12.0);
   const [lon, setLon] = useState<number>(45.0);
-  const [zoom, setZoom] = useState<number>(1.25);
+  const [zoom, setZoom] = useState<number>(1.0);
   const [liveVal, setLiveVal] = useState<number>(0);
 
   const isDragging = useRef(false);
@@ -109,7 +109,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
 
     const cx = width / 2;
     const cy = height / 2;
-    const radius = Math.min(width, height) * 0.43 * zoom;
+    const radius = Math.min(width, height) * 0.46 * zoom;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -291,7 +291,16 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         <span className="py-0.5 text-white/80">{zoom.toFixed(1)}×</span>
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
+          onClick={() => setZoom(1.0)}
+          aria-label="Fit globe to view"
+          title="Fit globe to view"
+          className="cursor-pointer rounded-lg px-2 py-1 font-mono text-[7px] tracking-[0.12em] text-white/45 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+        >
+          FIT
+        </button>
+        <button
+          type="button"
+          onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))
           aria-label="Zoom out"
           className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
