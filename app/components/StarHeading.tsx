@@ -29,7 +29,7 @@ export default function StarHeading({ text: value }: Props) {
       if (!maskCtx) return;
 
       const mobile = width < 640;
-      let fontSize = mobile ? Math.min(64, width * 0.14) : Math.min(132, width * 0.105);
+      let fontSize = mobile ? Math.min(34, width * 0.09) : Math.min(66, width * 0.055);
       const maxWidth = width - 8;
       maskCtx.font = "700 " + fontSize + "px Arial, Helvetica, sans-serif";
       while (maskCtx.measureText(value).width > maxWidth && fontSize > 18) {
@@ -64,9 +64,9 @@ export default function StarHeading({ text: value }: Props) {
   }, [value]);
 
   return (
-    <>
-      <canvas ref={canvasRef} className="polaris-star-heading" aria-hidden="true" />
+    <div className="polaris-star-heading-frame" aria-hidden="true">
+      <canvas ref={canvasRef} className="polaris-star-heading" />
       <h1 className="sr-only">{value}</h1>
-    </>
+    </div>
   );
 }
