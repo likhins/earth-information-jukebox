@@ -2,22 +2,24 @@
 
 import { useEffect, useRef } from "react";
 
+type Particle = { x: number; y: number; radius: number; alpha: number };
+
 export default function StarText() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const textCanvasRef = useRef<HTMLCanvasElement>(null);
+  const waveCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = textCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
     let observer: ResizeObserver | undefined;
 
-    const render = () => {
+    const renderText = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const width = Math.max(1, rect.width);
       const height = Math.max(1, rect.height);
-
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -31,48 +33,35 @@ export default function StarText() {
 
       const mobile = width < 640;
       const left = Math.max(24, width * (mobile ? 0.065 : 0.09));
-      const top = height * (mobile ? 0.22 : 0.245);
       const maxWidth = Math.min(width - left * 2, mobile ? width * 0.87 : 700);
       let titleSize = mobile ? Math.min(42, width * 0.105) : Math.min(62, width * 0.052);
-      let bodySize = mobile ? 12 : 15;
-      const labelSize = mobile ? 8 : 10;
-
+      const teamSize = mobile ? 17 : 22;
       const titleLines = ["Listen beyond", "what you can see."];
+
+      text.fillStyle = "#fff";
+      text.textBaseline = "top";
+      text.textAlign = "center";
+      text.font = "600 " + teamSize + "px Arial, Helvetica, sans-serif";
+      text.fillText("POLARIS", width / 2, height * 0.145);
+
+      text.textAlign = "left";
       while (titleSize > 28) {
         text.font = "600 " + titleSize + "px Arial, Helvetica, sans-serif";
         if (Math.max(...titleLines.map((line) => text.measureText(line).width)) <= maxWidth) break;
         titleSize -= 1;
       }
-      while (bodySize > 10) {
-        text.font = "400 " + bodySize + "px Arial, Helvetica, sans-serif";
-        if (Math.max(text.measureText("An exploration of our planet through data,").width, text.measureText("patterns and sound.").width) <= maxWidth) break;
-        bodySize -= 1;
-      }
-
-      text.fillStyle = "#fff";
-      text.textBaseline = "top";
-      text.font = "600 " + labelSize + "px ui-monospace, SFMono-Regular, Menlo, monospace";
-      text.fillText("POLARIS  ·  EARTH INFORMATION JUKEBOX", left, top, maxWidth);
-
-      const titleY = top + (mobile ? 34 : 42);
+      const titleY = height * (mobile ? 0.34 : 0.365);
       text.font = "600 " + titleSize + "px Arial, Helvetica, sans-serif";
       text.fillText(titleLines[0], left, titleY, maxWidth);
       text.fillText(titleLines[1], left, titleY + titleSize * 1.16, maxWidth);
 
-      const bodyY = titleY + titleSize * 2.55;
-      text.font = "400 " + bodySize + "px Arial, Helvetica, sans-serif";
-      text.fillText("An exploration of our planet through data,", left + 1, bodyY, maxWidth);
-      text.fillText("patterns and sound.", left + 1, bodyY + bodySize * 1.65, maxWidth);
-
       const pixels = text.getImageData(0, 0, mask.width, mask.height).data;
-      const step = mobile ? 2.65 : 2.9;
-      const points: { x: number; y: number; radius: number; alpha: number }[] = [];
+      const step = mobile ? 2.9 : 3.15;
+      const points: Particle[] = [];
 
       for (let y = 0; y < mask.height; y += step) {
         for (let x = 0; x < mask.width; x += step) {
-          const ix = Math.floor(x);
-          const iy = Math.floor(y);
-          const opacity = pixels[(iy * mask.width + ix) * 4 + 3];
+          const opacity = pixels[(Math.floor(y) * mask.width + Math.floor(x)) * 4 + 3];
           if (opacity > 115) {
             const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
             const noise = seed - Math.floor(seed);
@@ -86,7 +75,6 @@ export default function StarText() {
         }
       }
 
-      // One-time rasterization: each dot is painted once, not redrawn every frame.
       for (const point of points) {
         ctx.beginPath();
         ctx.fillStyle = "rgba(232,242,255," + point.alpha + ")";
@@ -95,19 +83,89 @@ export default function StarText() {
       }
     };
 
-    render();
-    observer = new ResizeObserver(render);
+    renderText();
+    observer = new ResizeObserver(renderText);
     observer.observe(canvas);
     return () => observer?.disconnect();
   }, []);
 
+  useEffect(() => {
+    const canvas = waveCanvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+
+    let frame = 0;
+    let lastDraw = 0;
+    let raf = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const draw = (time: number) => {
+      raf = requestAnimationFrame(draw);
+      if (time - lastDraw < 40) return;
+      lastDraw = time;
+      frame += 0.045;
+      ctx.clearRect(0, 0, width, height);
+
+      const mobile = width < 640;
+      const centerX = width / 2;
+      const span = Math.min(width * 0.62, mobile ? width * 0.78 : 820);
+      const count = mobile ? 76 : 116;
+      const spacing = span / (count - 1);
+      const rows = [
+        { y: height * 0.285, amplitude: mobile ? 7 : 10, phase: 0.2 },
+        { y: height * 0.665, amplitude: mobile ? 9 : 13, phase: 2.1 },
+      ];
+
+      for (const row of rows) {
+        for (let i = 0; i < count; i++) {
+          const x = centerX - span / 2 + i * spacing;
+          const position = i / (count - 1);
+          const envelope = Math.pow(Math.sin(Math.PI * position), 0.72);
+          const signal =
+            Math.sin(i * 0.19 + frame + row.phase) * 0.56 +
+            Math.sin(i * 0.073 - frame * 1.35 + row.phase) * 0.28 +
+            Math.sin(i * 0.37 + frame * 0.72) * 0.16;
+          const y = row.y + signal * row.amplitude * envelope;
+          const pulse = 0.5 + 0.5 * Math.sin(i * 0.14 - frame * 1.8 + row.phase);
+          const radius = 0.65 + pulse * 0.75;
+          const alpha = (0.18 + pulse * 0.42) * (0.25 + envelope * 0.75);
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(205,226,255," + alpha + ")";
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    };
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    raf = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className="star-text-wrap pointer-events-none absolute inset-0 z-[1]" aria-hidden="true">
-      <canvas ref={canvasRef} className="star-text-canvas" />
+      <canvas ref={waveCanvasRef} className="star-wave-canvas" />
+      <canvas ref={textCanvasRef} className="star-text-canvas" />
       <div className="sr-only">
-        <p>Polaris · Earth Information Jukebox</p>
+        <p>Polaris</p>
         <h1>Listen beyond what you can see.</h1>
-        <p>An exploration of our planet through data, patterns and sound.</p>
       </div>
     </div>
   );
