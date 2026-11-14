@@ -11,7 +11,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { Activity, ArrowDown, ArrowRight, Globe2, Layers, ScanLine, Waves } from 'lucide-react';
+import { Activity, Layers, ScanLine } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -27,7 +27,6 @@ export default function PolarisDashboard() {
   const [latestFeatures, setLatestFeatures] = useState<ReticleFeatures | null>(null);
   const [sonificationOutput, setSonificationOutput] = useState<SmlSonificationOutput | null>(null);
   const [isInferring, setIsInferring] = useState(false);
-  const [utcTime, setUtcTime] = useState<string>('--:--:--');
   const [scrollOffset, setScrollOffset] = useState(0);
 
   const activeDataset =
@@ -45,12 +44,6 @@ export default function PolarisDashboard() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const updateClock = () => setUtcTime(new Date().toISOString().slice(11, 19));
-    updateClock();
-    const timer = setInterval(updateClock, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleGenerateTrack = useCallback(async () => {
     if (!latestFeatures) return;
@@ -65,31 +58,9 @@ export default function PolarisDashboard() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#030712] text-slate-100 flex flex-col selection:bg-sky-500/30">
-      {/* Minimalist Top Bar */}
-      <header id="top" className="min-h-14 shrink-0 flex items-center justify-between gap-3 px-4 sm:px-5 bg-slate-950/90 border-b border-white/[0.07] font-mono">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sky-400">
-            <Globe2 className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-widest uppercase">POLARIS</span>
-          </div>
-          <span className="text-slate-700">/</span>
-          <span className="text-xs text-slate-400 hidden md:inline">
-            NASA Space Apps 2026 · Earth Information Jukebox
-          </span>
-        </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 text-[11px]">
-          <span className="text-slate-500 hidden sm:inline">
-            UTC <span className="text-slate-300">{utcTime}</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            SML ONLINE
-          </span>
-        </div>
-      </header>
 
-      <section className="relative isolate flex min-h-[calc(100svh-3.5rem)] flex-col justify-center overflow-hidden border-b border-white/[0.07] px-6 py-20 sm:px-10 lg:px-16">
+      <section className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden border-b border-white/[0.07] px-0 py-0 sm:px-0 lg:px-0">
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#020712_0%,rgba(2,7,18,0.96)_24%,rgba(2,7,18,0.42)_56%,rgba(2,7,18,0.08)_100%)]" />
           <img
@@ -116,43 +87,39 @@ export default function PolarisDashboard() {
           <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-t from-[#030712] via-[#030712]/45 to-transparent" />
         </div>
         <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.16)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
-        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="max-w-2xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-3 py-1.5 font-mono text-[10px] tracking-[0.2em] text-sky-300 uppercase">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400" /> Earth, translated
-            </div>
-            <h1 className="max-w-3xl text-5xl leading-[0.98] font-semibold tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.5rem]">
-              Listen to the <span className="text-sky-300">living</span> planet.
-            </h1>
-            <p className="mt-7 max-w-xl text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-              Explore Earth observation data as sound. Move across a signal, find a pattern, and hear what the planet is telling us.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <a href="#workspace" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 font-mono text-sm font-bold text-slate-950 transition hover:bg-sky-300">
-                Enter the workspace <ArrowRight className="h-4 w-4" />
-              </a>
-              <span className="font-mono text-[11px] text-slate-500">9 Earth data streams · 1 sonic instrument</span>
-            </div>
-            <a href="#workspace" className="mt-16 inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.18em] text-slate-500 uppercase transition hover:text-slate-300">
-              Scroll to explore <ArrowDown className="h-3.5 w-3.5" />
-            </a>
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+          {/* Space background is independent from the Earth artwork. */}
+          <div className="absolute inset-0 polaris-space-bg" />
+          <img
+            src="/images/earth.png"
+            alt=""
+            className="absolute right-[-13%] top-[-12%] h-[88%] w-[88%] object-contain object-right-top opacity-95 will-change-transform sm:right-[-7%] sm:h-[98%] sm:w-[82%] lg:right-[-2%] lg:top-[-17%] lg:h-[112%] lg:w-[76%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.10}px, 0)` }}
+          />
+          <img
+            src="/images/moon-foreground.png"
+            alt=""
+            className="absolute bottom-[-1px] left-0 h-[31%] w-full object-cover object-center opacity-95 will-change-transform sm:h-[36%] lg:h-[39%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.22}px, 0)` }}
+          />
+          <div
+            className="absolute right-[-10%] top-[13%] h-[75%] w-[68%] will-change-transform sm:right-[-3%] sm:w-[61%] lg:right-[1%] lg:top-[6%] lg:h-[88%] lg:w-[55%]"
+            style={{ transform: `translate3d(0, ${scrollOffset * -0.18}px, 0)` }}
+          >
+            <img
+              src="/images/astronaut.png"
+              alt=""
+              className="h-full w-full object-contain object-center animate-[astronaut-drift_9s_ease-in-out_infinite]"
+            />
           </div>
-          <div className="relative mx-auto flex aspect-square w-full max-w-[440px] items-end justify-end">
-            <div className="mb-[8%] flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/75 px-3 py-2 font-mono text-[10px] text-slate-200 backdrop-blur">
-              <Waves className="h-3.5 w-3.5 text-sky-300" /> DATA IN / SOUND OUT
-            </div>
-          </div>
-        </div>
-      </section>
+          <div className="absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-t from-[#030712] to-transparent" />
+        </div>      </section>
 
       {/* Scroll down to enter the interactive workspace */}
       <main id="workspace" className="min-h-screen scroll-mt-0 p-3 sm:p-5 lg:min-h-[calc(100svh-3.5rem)]">
-        <div className="mx-auto flex min-h-12 max-w-[1800px] items-center justify-between px-1 pb-2 font-mono">
-          <div>
-            <p className="text-[10px] tracking-[0.2em] text-sky-300 uppercase">Interactive workspace</p>
-            <p className="mt-1 text-xs text-slate-500">Choose a data stream, sample a region, then sonify it.</p>
-          </div>
-          <a href="#top" className="hidden text-[10px] text-slate-500 hover:text-slate-200 sm:block">Back to top ↑</a>
+        <div className="mx-auto flex min-h-2 max-w-[1800px] items-center justify-between px-1 pb-2 font-mono">
+
+
         </div>
         <div className="mx-auto grid min-h-0 max-w-[1800px] grid-cols-1 gap-3 lg:min-h-[calc(100svh-7.5rem)] lg:grid-cols-[280px_1fr]">
         {/* Left Stream Rail */}
