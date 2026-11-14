@@ -255,3 +255,14 @@ button:focus-visible,
   opacity: 1 !important;
   transition: none !important;
 }
+
+
+/* Keep the dashboard heading and its companion signal completely static. */
+.polaris-dashboard-title .polaris-star-heading,
+.polaris-dashboard-title .polaris-heading-wave,
+.polaris-dashboard-title .polaris-heading-wave i {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+.polaris-dashboard-title .polaris-heading-wave i { opacity: .8 !important; }
