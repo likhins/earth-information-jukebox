@@ -29,7 +29,7 @@ export default function StarHeading({ text: value }: Props) {
       if (!maskCtx) return;
 
       const mobile = width < 640;
-      let fontSize = mobile ? Math.min(31, width * 0.075) : Math.min(43, width * 0.034);
+      let fontSize = mobile ? Math.min(36, width * 0.085) : Math.min(58, width * 0.046);
       const maxWidth = width - 8;
       maskCtx.font = "700 " + fontSize + "px Arial, Helvetica, sans-serif";
       while (maskCtx.measureText(value).width > maxWidth && fontSize > 18) {
@@ -43,7 +43,7 @@ export default function StarHeading({ text: value }: Props) {
       maskCtx.fillText(value, 2, height / 2, maxWidth);
 
       const pixels = maskCtx.getImageData(0, 0, mask.width, mask.height).data;
-      const step = mobile ? 2.15 : 2.35;
+      const step = mobile ? 2.0 : 2.15;
       for (let y = 0; y < mask.height; y += step) {
         for (let x = 0; x < mask.width; x += step) {
           const alpha = pixels[(Math.floor(y) * mask.width + Math.floor(x)) * 4 + 3];
