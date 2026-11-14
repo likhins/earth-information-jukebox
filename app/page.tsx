@@ -217,7 +217,7 @@ export default function PolarisDashboard() {
 
             {/* Spatial instrument and sound processor */}
             <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 bg-[#090a0a] p-3 sm:p-4 lg:p-4">
-              <section id="field-explorer" className="flex min-h-0 flex-1 flex-col scroll-mt-6">
+              <section id="field-explorer" className="flex min-h-0 flex-[1.35] flex-col scroll-mt-6">
                 <div className="flex shrink-0 flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-2">
                   <div>
                     <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
