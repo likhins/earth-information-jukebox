@@ -133,6 +133,6 @@ button:focus-visible,
 
 /* Star particles assemble into the landing-page typography */
 .star-text-wrap { width: 100%; height: 100%; position: absolute; inset: 0; opacity: 0; animation: polaris-star-text-fade 1.1s ease-out .15s forwards; }
-.star-text-canvas { display: block; width: 100%; height: 100%; }
+.star-text-canvas, .star-wave-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }\n.star-wave-canvas { opacity: .9; }
 @keyframes polaris-star-text-fade { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .star-text-wrap { animation: none; opacity: 1; } }
