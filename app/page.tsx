@@ -60,33 +60,7 @@ export default function PolarisDashboard() {
     <div className="min-h-screen w-full overflow-x-hidden bg-[#030712] text-slate-100 flex flex-col selection:bg-sky-500/30">
 
 
-      <section className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden border-b border-white/[0.07] px-0 py-0 sm:px-0 lg:px-0">
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#020712_0%,rgba(2,7,18,0.96)_24%,rgba(2,7,18,0.42)_56%,rgba(2,7,18,0.08)_100%)]" />
-          <img
-            src="/images/earth-backdrop.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute right-[-10%] top-[-13%] h-[94%] w-[88%] object-contain object-right-top opacity-95 will-change-transform sm:right-[-5%] sm:w-[82%] lg:right-[-2%] lg:top-[-18%] lg:h-[108%] lg:w-[78%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.10}px, 0)` }}
-          />
-          <img
-            src="/images/moon-foreground.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute bottom-[-1px] left-0 h-[31%] w-full object-cover object-center opacity-95 will-change-transform sm:h-[36%] lg:h-[39%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.22}px, 0)` }}
-          />
-          <img
-            src="/images/astronaut.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute right-[-10%] top-[13%] h-[75%] w-[68%] object-contain object-center animate-[astronaut-float_8s_ease-in-out_infinite] will-change-transform sm:right-[-3%] sm:w-[61%] lg:right-[1%] lg:top-[6%] lg:h-[88%] lg:w-[55%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.35}px, 0)` }}
-          />
-          <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-t from-[#030712] via-[#030712]/45 to-transparent" />
-        </div>
-        <div className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.16)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
+      <section className="relative isolate min-h-screen overflow-hidden border-b border-white/[0.07] bg-[#020712]">
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
           {/* Space background is independent from the Earth artwork. */}
           <div className="absolute inset-0 polaris-space-bg" />
@@ -112,15 +86,11 @@ export default function PolarisDashboard() {
               className="h-full w-full object-contain object-center animate-[astronaut-drift_9s_ease-in-out_infinite]"
             />
           </div>
-          <div className="absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-t from-[#030712] to-transparent" />
-        </div>      </section>
+        </div>
+      </section>
 
       {/* Scroll down to enter the interactive workspace */}
       <main id="workspace" className="min-h-screen scroll-mt-0 p-3 sm:p-5 lg:min-h-[calc(100svh-3.5rem)]">
-        <div className="mx-auto flex min-h-2 max-w-[1800px] items-center justify-between px-1 pb-2 font-mono">
-
-
-        </div>
         <div className="mx-auto grid min-h-0 max-w-[1800px] grid-cols-1 gap-3 lg:min-h-[calc(100svh-7.5rem)] lg:grid-cols-[280px_1fr]">
         {/* Left Stream Rail */}
         <aside
