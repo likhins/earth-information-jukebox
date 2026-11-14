@@ -11,7 +11,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { Activity, Layers, ScanLine } from 'lucide-react';
+import { Activity, ArrowDownRight, Layers, ScanLine } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -27,7 +27,6 @@ export default function PolarisDashboard() {
   const [latestFeatures, setLatestFeatures] = useState<ReticleFeatures | null>(null);
   const [sonificationOutput, setSonificationOutput] = useState<SmlSonificationOutput | null>(null);
   const [isInferring, setIsInferring] = useState(false);
-  const [scrollOffset, setScrollOffset] = useState(0);
 
   const activeDataset =
     EIC_DATASETS.find((d) => d.id === activeDatasetId) || EIC_DATASETS[0];
@@ -36,14 +35,6 @@ export default function PolarisDashboard() {
     selectedCategory === 'All'
       ? EIC_DATASETS
       : EIC_DATASETS.filter((d) => d.category === selectedCategory);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollOffset(window.scrollY);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
 
   const handleGenerateTrack = useCallback(async () => {
     if (!latestFeatures) return;
@@ -60,31 +51,62 @@ export default function PolarisDashboard() {
     <div className="min-h-screen w-full overflow-x-hidden bg-[#030712] text-slate-100 flex flex-col selection:bg-sky-500/30">
 
 
-      <section className="relative isolate min-h-screen overflow-hidden border-b border-white/[0.07] bg-[#020712]">
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-          {/* Space background is independent from the Earth artwork. */}
-          <div className="absolute inset-0 polaris-space-bg" />
-          <img
-            src="/images/earth.png"
-            alt=""
-            className="absolute right-[-13%] top-[-12%] h-[88%] w-[88%] object-contain object-right-top opacity-95 will-change-transform sm:right-[-7%] sm:h-[98%] sm:w-[82%] lg:right-[-2%] lg:top-[-17%] lg:h-[112%] lg:w-[76%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.10}px, 0)` }}
-          />
-          <img
-            src="/images/moon-foreground.png"
-            alt=""
-            className="absolute bottom-[-1px] left-0 h-[31%] w-full object-cover object-center opacity-95 will-change-transform sm:h-[36%] lg:h-[39%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.22}px, 0)` }}
-          />
-          <div
-            className="absolute right-[-10%] top-[13%] h-[75%] w-[68%] will-change-transform sm:right-[-3%] sm:w-[61%] lg:right-[1%] lg:top-[6%] lg:h-[88%] lg:w-[55%]"
-            style={{ transform: `translate3d(0, ${scrollOffset * -0.18}px, 0)` }}
-          >
-            <img
-              src="/images/astronaut.png"
-              alt=""
-              className="h-full w-full object-contain object-center animate-[astronaut-drift_9s_ease-in-out_infinite]"
-            />
+      <section className="relative isolate flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] bg-[#050505] px-7 py-20 sm:px-12 lg:px-[9vw]">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_48%,rgba(255,255,255,0.055),transparent_43%)]" />
+          <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:90px_90px]" />
+        </div>
+        <div className="relative z-10 w-full max-w-[340px] pb-10">
+          <p className="mb-4 font-mono text-[10px] tracking-[0.28em] text-white/45 uppercase">Polaris · Earth Information Jukebox</p>
+          <h1 className="text-3xl font-medium leading-[1.08] tracking-[-0.045em] text-white sm:text-4xl">Listen beyond<br />what you can see.</h1>
+          <p className="mt-4 max-w-[260px] text-xs leading-6 text-white/45">An exploration of our planet through data, patterns and sound.</p>
+          <a href="#workspace" className="mt-7 inline-flex items-center gap-2 border-b border-white/35 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/75 uppercase transition hover:border-white hover:text-white">
+            Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <div className="pointer-events-none absolute -right-[18%] top-1/2 aspect-square w-[82vw] max-w-[1050px] -translate-y-1/2 sm:-right-[13%] sm:w-[75vw] lg:-right-[9%] lg:w-[70vw]" aria-hidden="true">
+          <div className="polaris-wire-globe absolute inset-0">
+            <svg viewBox="0 0 1000 1000" className="h-full w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="globeFade" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="white" stopOpacity=".92" />
+                  <stop offset="72%" stopColor="white" stopOpacity=".65" />
+                  <stop offset="100%" stopColor="white" stopOpacity=".08" />
+                </radialGradient>
+                <clipPath id="globeClip"><circle cx="500" cy="500" r="468" /></clipPath>
+              </defs>
+              <circle cx="500" cy="500" r="468" stroke="white" strokeOpacity=".3" strokeWidth="1.2" />
+              <g clipPath="url(#globeClip)" stroke="white" strokeOpacity=".36" strokeWidth="1.1">
+                <ellipse cx="500" cy="500" rx="468" ry="118" />
+                <ellipse cx="500" cy="500" rx="468" ry="235" />
+                <ellipse cx="500" cy="500" rx="468" ry="352" />
+                <ellipse cx="500" cy="500" rx="118" ry="468" />
+                <ellipse cx="500" cy="500" rx="235" ry="468" />
+                <ellipse cx="500" cy="500" rx="352" ry="468" />
+                <path d="M500 32 C350 180 350 820 500 968" />
+                <path d="M500 32 C650 180 650 820 500 968" />
+                <path d="M32 500 H968" />
+              </g>
+              <g clipPath="url(#globeClip)" fill="url(#globeFade)" opacity=".8">
+                {Array.from({length: 22}, (_, row) => (
+                  <g key={row}>
+                    {Array.from({length: 34}, (_, col) => {
+                      const x = 90 + col * 25 + (row % 2) * 12;
+                      const y = 110 + row * 36;
+                      const nx = (x - 500) / 470;
+                      const ny = (y - 500) / 470;
+                      const inside = nx * nx + ny * ny < 1;
+                      const continent =
+                        (nx > -0.72 && nx < -0.18 && ny > -0.35 && ny < 0.35) ||
+                        (nx > -0.22 && nx < 0.2 && ny > -0.05 && ny < 0.72) ||
+                        (nx > 0.18 && nx < 0.72 && ny > -0.52 && ny < 0.22) ||
+                        (nx > 0.38 && nx < 0.72 && ny > 0.24 && ny < 0.58);
+                      return inside && continent ? <circle key={col} cx={x} cy={y} r="2.1" /> : null;
+                    })}
+                  </g>
+                ))}
+              </g>
+            </svg>
           </div>
         </div>
       </section>
