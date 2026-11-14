@@ -232,7 +232,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   return (
     <section
       aria-label="Earth visualization viewport"
-      className="relative h-full w-full select-none overflow-hidden rounded-2xl border border-white/[0.14] bg-[#070a10] shadow-[0_28px_90px_rgba(0,0,0,0.35)]"
+      className="polaris-instrument-surface relative h-full w-full select-none overflow-hidden rounded-[18px] border border-[#2a2c2b] bg-[#080909] shadow-[inset_0_1px_0_rgba(255,255,255,0.045),0_28px_90px_rgba(0,0,0,0.42)]"
     >
       <div
         ref={containerRef}
@@ -244,13 +244,13 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        className="absolute inset-0 h-full w-full cursor-grab focus:outline-none active:cursor-grabbing"
+        className="absolute inset-0 h-full w-full cursor-grab touch-none focus:outline-none active:cursor-grabbing"
       >
         <canvas ref={canvasRef} className="block h-full w-full" />
       </div>
 
       {/* Dataset identity */}
-      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.16em] sm:left-6 sm:top-5">
+      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5 rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.15em] backdrop-blur-md sm:left-6 sm:top-5">
         <Crosshair className="h-3 w-3 text-white/65" />
         <span className="text-white/85">{dataset.shortCode}</span>
         <span className="text-white/25">/</span>
@@ -258,11 +258,11 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       </div>
 
       {/* Coordinate and live value readout */}
-      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden font-mono text-[9px] tracking-[0.12em] text-white/55 sm:block sm:right-6 sm:top-5">
+      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] tracking-[0.1em] text-white/65 backdrop-blur-md sm:block sm:right-6 sm:top-5">
         {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}&nbsp;&nbsp;
         {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
         <span className="mx-3 text-white/20">/</span>
-        <span className="text-white/85">{liveVal.toFixed(2)} {dataset.unit}</span>
+        <span className="text-[#f0a078]">{liveVal.toFixed(2)} {dataset.unit}</span>
       </div>
 
       {/* Sampling reticle */}
@@ -279,12 +279,12 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       </div>
 
       {/* Zoom controls */}
-      <div className="absolute bottom-20 right-4 z-10 flex flex-col items-center gap-1 border border-white/20 bg-black/65 p-1 font-mono text-[9px] text-white/70 backdrop-blur-sm sm:bottom-20 sm:right-6">
+      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl border border-white/[0.14] bg-[#111313]/90 p-1.5 font-mono text-[9px] text-white/70 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:right-6">
         <button
           type="button"
           onClick={() => setZoom((z) => Math.min(4.5, +(z + 0.25).toFixed(2)))}
           aria-label="Zoom in"
-          className="cursor-pointer p-1.5 text-white/55 transition-colors hover:text-white"
+          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
           <ZoomIn className="h-3.5 w-3.5" />
         </button>
@@ -293,20 +293,20 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
           type="button"
           onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
           aria-label="Zoom out"
-          className="cursor-pointer p-1.5 text-white/55 transition-colors hover:text-white"
+          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
           <ZoomOut className="h-3.5 w-3.5" />
         </button>
       </div>
 
       {/* Color scale and geographic presets */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.12] bg-[#05070b]/85 px-5 py-4 font-mono text-[9px] tracking-[0.08em] backdrop-blur-xl sm:px-6">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.13] bg-[#090a0a]/92 px-4 py-3.5 font-mono text-[8px] tracking-[0.08em] backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-2.5">
           <span className="text-white/45">{dataset.minVal}</span>
           <div
             role="img"
             aria-label={`Color scale from ${dataset.minVal} to ${dataset.maxVal} ${dataset.unit}`}
-            className="h-1.5 w-24"
+            className="h-1.5 w-24 overflow-hidden rounded-full"
             style={{ background: dataset.colorGradient }}
           />
           <span className="text-white/45">{dataset.maxVal} {dataset.unit}</span>
@@ -321,7 +321,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
                 setLat(spot.lat);
                 setLon(spot.lon);
               }}
-              className="inline-flex cursor-pointer items-center gap-1.5 text-white/50 transition-colors hover:text-white"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.035] px-2.5 py-1.5 text-white/48 transition-colors hover:border-[#e7824d]/45 hover:bg-[#e7824d]/[0.08] hover:text-[#f0a078]"
             >
               <MapPin className="h-3 w-3" />
               {spot.label}
