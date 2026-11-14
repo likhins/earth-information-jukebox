@@ -17,14 +17,15 @@ export default function StarText() {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
     let particles: Particle[] = [];
     let ambient: AmbientStar[] = [];
     let width = 0;
     let height = 0;
     let startedAt = 0;
-    let observer: ResizeObserver | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let visibilityObserver: IntersectionObserver | undefined;
+    let isVisible = true;
 
     const build = () => {
       const rect = canvas.getBoundingClientRect();
@@ -90,7 +91,7 @@ export default function StarText() {
       const elapsed = now - startedAt;
       const gatherStart = 1500;
       const gatherDuration = 2600;
-      const rawProgress = reduceMotion ? 1 : Math.max(0, Math.min(1, (elapsed - gatherStart) / gatherDuration));
+      const rawProgress = Math.max(0, Math.min(1, (elapsed - gatherStart) / gatherDuration));
       const progress = 1 - Math.pow(1 - rawProgress, 3);
 
       // A loose starfield remains visible behind the forming typography.
@@ -104,10 +105,10 @@ export default function StarText() {
 
       // The same stars begin scattered across the canvas, then converge into letterforms.
       for (const particle of particles) {
-        const wander = reduceMotion || progress >= 1 ? 0 : Math.sin(now * 0.0007 + particle.phase) * particle.drift * (1 - progress);
+        const wander = progress >= 1 ? 0 : Math.sin(now * 0.0007 + particle.phase) * particle.drift * (1 - progress);
         const x = particle.x + (particle.tx - particle.x) * progress + wander;
         const y = particle.y + (particle.ty - particle.y) * progress + Math.cos(now * 0.0008 + particle.phase) * particle.drift * (1 - progress);
-        const twinkle = reduceMotion ? 0.9 : 0.72 + 0.28 * Math.sin(now * 0.0015 + particle.phase);
+        const twinkle = 0.72 + 0.28 * Math.sin(now * 0.0015 + particle.phase);
         const alpha = progress < 1 ? 0.52 + progress * 0.4 : 0.86 * twinkle;
         ctx.beginPath();
         ctx.fillStyle = "rgba(226,240,255," + alpha + ")";
@@ -117,21 +118,31 @@ export default function StarText() {
         ctx.fill();
       }
       ctx.shadowBlur = 0;
-      if (!reduceMotion) frame = requestAnimationFrame(draw);
+      if (isVisible) frame = requestAnimationFrame(draw);
     };
 
     build();
     frame = requestAnimationFrame(draw);
-    observer = new ResizeObserver(() => {
+    resizeObserver = new ResizeObserver(() => {
       cancelAnimationFrame(frame);
       build();
       frame = requestAnimationFrame(draw);
     });
-    observer.observe(canvas);
+    resizeObserver.observe(canvas);
+    visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      cancelAnimationFrame(frame);
+      if (isVisible) {
+        startedAt = performance.now();
+        frame = requestAnimationFrame(draw);
+      }
+    }, { threshold: 0.15 });
+    visibilityObserver.observe(canvas);
 
     return () => {
       cancelAnimationFrame(frame);
-      observer?.disconnect();
+      resizeObserver?.disconnect();
+      visibilityObserver?.disconnect();
     };
   }, []);
 
