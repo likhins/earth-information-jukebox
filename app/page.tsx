@@ -110,7 +110,7 @@ export default function PolarisDashboard() {
       </section>
 
       {/* Interactive workspace */}
-      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-3 py-5 text-white sm:px-5 lg:h-[100svh] lg:min-h-[680px] lg:px-[3vw] lg:py-5">
+      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-3 py-5 text-white sm:px-5 lg:h-[100svh] lg:min-h-[680px] lg:px-[3vw] lg:py-6">
         <div className="pointer-events-none absolute inset-x-0 -top-32 z-0 h-64 bg-gradient-to-b from-transparent via-[#070808]/90 to-[#070808]" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.045]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:64px_64px]" />
@@ -118,39 +118,7 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto max-w-[1800px]">
-          {/* Console identity and live sample readout */}
-          <header className="mb-4">
-            <div className="grid gap-3 pt-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,320px)] lg:items-end">
-              <div>
-                <h2 className="text-[1.65rem] font-medium leading-[1.05] tracking-[-0.06em] text-[#f2f0eb] sm:text-[2rem] lg:text-[2.25rem]">
-                  Earth, in another language.
-                </h2>
-                <p className="mt-2 max-w-xl text-[10px] leading-5 text-white/45 sm:text-[11px]">
-                  Move through the signal. Find a region. Listen to what the data reveals.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-white/[0.1] bg-[#101111]/85 px-3 py-2">
-                  <span className="block font-mono text-[8px] uppercase tracking-[0.17em] text-white/35">Sampled value</span>
-                  <strong className="mt-1 block font-mono text-[13px] font-normal tabular-nums text-[#f1a06f]">
-                    {latestFeatures ? latestFeatures.windowMean.toFixed(2) : '—'}
-                    <span className="ml-1 text-[9px] text-white/40">{activeDataset.unit}</span>
-                  </strong>
-                </div>
-                <div className="rounded-xl border border-white/[0.1] bg-[#101111]/85 px-3.5 py-3">
-                  <span className="block font-mono text-[8px] uppercase tracking-[0.17em] text-white/35">Sample position</span>
-                  <strong className="mt-1 block font-mono text-[10px] font-normal tabular-nums text-white/75">
-                    {latestFeatures
-                      ? `${Math.abs(latestFeatures.lat).toFixed(1)}°${latestFeatures.lat >= 0 ? 'N' : 'S'} / ${Math.abs(latestFeatures.lon).toFixed(1)}°${latestFeatures.lon >= 0 ? 'E' : 'W'}`
-                      : 'Awaiting input'}
-                  </strong>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-170px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-48px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
@@ -222,7 +190,7 @@ export default function PolarisDashboard() {
                   <div>
                     <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
                     <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">{activeDataset.shortCode} <span className="px-1 text-white/15">/</span> {activeDataset.name}</p>
-                    <p className="mt-2 max-w-2xl font-sans text-[10px] leading-5 text-white/40">{activeDataset.description}</p>
+                    
                   </div>
                 </div>
                 <div className="mt-2 min-h-[340px] flex-1 lg:min-h-0">
