@@ -153,7 +153,7 @@ export default function PolarisDashboard() {
           <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[22px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:grid-cols-[292px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
-            <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:border-b-0 lg:border-r lg:border-white/[0.11]">
+            <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
               <div className="flex items-center justify-between border-b border-white/[0.1] px-4 py-4 lg:px-5">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.1] bg-white/[0.035] text-[#e58a56]">
@@ -184,7 +184,7 @@ export default function PolarisDashboard() {
                 ))}
               </div>
 
-              <div role="radiogroup" aria-label="Select a dataset" className="max-h-80 space-y-1 overflow-y-auto px-2 py-2.5 pr-2 polaris-scroll lg:max-h-[min(54vh,560px)]">
+              <div role="radiogroup" aria-label="Select a dataset" className="max-h-80 space-y-1 overflow-y-auto px-2 py-2.5 pr-2 polaris-scroll lg:max-h-none lg:min-h-0 lg:flex-1">
                 {filteredDatasets.map((ds, index) => {
                   const selected = ds.id === activeDatasetId;
                   return (
