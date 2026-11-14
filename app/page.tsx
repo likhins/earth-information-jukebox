@@ -213,16 +213,6 @@ export default function PolarisDashboard() {
                 })}
               </div>
 
-              <div className="border-t border-white/[0.09] bg-[#111212] p-4 lg:p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.17em] text-white/45">
-                    <ScanLine className="h-3 w-3 text-[#e58a56]" /> Active observation
-                  </div>
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#ef8450]" />
-                </div>
-                <p className="mb-2 font-sans text-[11px] font-medium text-white/80">{activeDataset.name}</p>
-                <p className="font-sans text-[10px] leading-[1.65] text-white/40">{activeDataset.description}</p>
-              </div>
             </aside>
 
             {/* Spatial instrument and sound processor */}
@@ -230,10 +220,9 @@ export default function PolarisDashboard() {
               <section id="field-explorer" className="scroll-mt-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-3">
                   <div>
-                      <div>
                     <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
                     <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">{activeDataset.shortCode} <span className="px-1 text-white/15">/</span> {activeDataset.name}</p>
-                  </div>
+                    <p className="mt-2 max-w-2xl font-sans text-[10px] leading-5 text-white/40">{activeDataset.description}</p>
                   </div>
                 </div>
                 <div className="mt-3 h-[430px] min-h-0 sm:h-[540px] lg:h-[min(52vw,680px)] lg:max-h-[680px]">
