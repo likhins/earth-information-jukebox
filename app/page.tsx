@@ -122,10 +122,6 @@ export default function PolarisDashboard() {
           <header className="mb-7">
             <div className="grid gap-6 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(250px,360px)] lg:items-end">
               <div>
-                <p className="mb-3 flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.26em] text-[#e68a55]">
-                  <span className="h-px w-6 bg-[#e68a55]/70" />
-                  Earth observation / sonic environment
-                </p>
                 <h2 className="text-[2rem] font-medium leading-[1.05] tracking-[-0.06em] text-[#f2f0eb] sm:text-[2.7rem] lg:text-[3.25rem]">
                   Earth, in another language.
                 </h2>
@@ -233,13 +229,8 @@ export default function PolarisDashboard() {
               <section id="field-explorer" className="scroll-mt-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-3">
                   <div>
-                    <p className="mb-1 font-mono text-[7px] uppercase tracking-[0.22em] text-[#e58a56]">01 / Spatial input</p>
-                    <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
+                      <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
                   </div>
-                  <span className="inline-flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#e58a56]" />
-                    Drag to rotate <span className="text-white/15">/</span> Scroll to zoom
-                  </span>
                 </div>
                 <div className="mt-3 h-[430px] min-h-0 sm:h-[540px] lg:h-[min(52vw,680px)] lg:max-h-[680px]">
                   <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
