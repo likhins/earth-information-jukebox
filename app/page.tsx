@@ -61,7 +61,17 @@ export default function PolarisDashboard() {
         </div>
         <StarText />
         <div className="absolute left-7 top-[73%] z-10 sm:left-12 lg:left-[9vw]">
-          <a href="#workspace" className="inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
+          <a
+            href="#workspace"
+            onClick={(event) => {
+              event.preventDefault();
+              document.getElementById("workspace")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }}
+            className="inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white"
+          >
             Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
           </a>
         </div>
