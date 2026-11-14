@@ -2,6 +2,7 @@
 'use client';
 
 import StarText from "./components/StarText";
+import StarHeading from "./components/StarHeading";
 import React, { useState, useCallback } from 'react';
 import {
   EIC_DATASETS,
@@ -120,9 +121,7 @@ export default function PolarisDashboard() {
         <div className="relative mx-auto max-w-[1800px]">
           <header className="polaris-dashboard-title mb-2 flex min-h-[58px] items-center justify-start overflow-hidden lg:mb-2">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <h1 className="text-left font-sans text-[clamp(1.8rem,3vw,2.65rem)] font-bold leading-[0.98] tracking-[-0.065em] text-[#f2f0eb]">
-                Earth, in another language.
-              </h1>
+              <StarHeading text="Earth, in another language." />
               <div className="flex items-center gap-3">
                 <span className="polaris-heading-wave" aria-hidden="true">
                   <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
