@@ -118,7 +118,12 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto max-w-[1800px]">
-          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-48px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <header className="polaris-dashboard-title mb-3 flex min-h-10 items-center justify-center overflow-hidden lg:mb-3">
+            <h1 className="text-center font-sans text-[clamp(1.25rem,2.1vw,2rem)] font-medium leading-none tracking-[-0.065em] text-[#f2f0eb]">
+              Listen beyond what you can see.
+            </h1>
+          </header>
+          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-100px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
