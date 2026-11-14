@@ -12,7 +12,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { ArrowDownRight, AudioLines, Compass, Layers, Orbit, ScanLine } from 'lucide-react';
+import { ArrowDownRight, AudioLines, Layers, ScanLine } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -51,13 +51,13 @@ export default function PolarisDashboard() {
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-black text-white flex flex-col selection:bg-white/20">
       {/* Cinematic Earth landing section */}
-      <section className="relative isolate flex min-h-[100svh] items-start overflow-hidden border-b border-white/[0.08] bg-black px-7 pb-20 pt-[22svh] sm:px-12 lg:px-[9vw]">
+      <section className="relative isolate flex min-h-[100svh] items-start overflow-hidden bg-black px-7 pb-20 pt-[22svh] sm:px-12 lg:px-[9vw]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <img src="/earth.png" alt="" className="absolute inset-0 h-full w-full object-cover object-center" draggable={false} />
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/5 to-black/55" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-b from-transparent via-black/65 to-black" />
-          <div className="absolute inset-x-0 -bottom-1 h-40 bg-gradient-to-b from-transparent to-black" />
+          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-b from-transparent via-black/75 to-[#070808]" />
+          <div className="absolute inset-x-0 -bottom-1 h-48 bg-gradient-to-b from-transparent via-[#070808]/75 to-[#070808]" />
         </div>
         <StarText />
         <div className="absolute left-7 top-[73%] z-10 sm:left-12 lg:left-[9vw]">
@@ -111,6 +111,7 @@ export default function PolarisDashboard() {
 
       {/* Interactive workspace */}
       <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-4 py-8 text-white sm:px-6 lg:px-[4vw] lg:py-12">
+        <div className="pointer-events-none absolute inset-x-0 -top-32 z-0 h-64 bg-gradient-to-b from-transparent via-[#070808]/90 to-[#070808]" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.045]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:64px_64px]" />
           <div className="absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-[#e56d36]/[0.045] blur-[120px]" />
@@ -119,26 +120,6 @@ export default function PolarisDashboard() {
         <div className="relative mx-auto max-w-[1800px]">
           {/* Console identity and live sample readout */}
           <header className="mb-7">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.13] pb-5">
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.16] bg-[#151615] text-[#f18a51] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                  <Orbit className="h-5 w-5" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="font-sans text-[13px] font-semibold tracking-[0.27em] text-white">POLARIS</p>
-                  <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.2em] text-white/35">Earth Information Jukebox</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 font-mono text-[8px] uppercase tracking-[0.17em] text-white/40">
-                <span className="hidden border-r border-white/10 pr-3 sm:inline">Field console / 01</span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.035] px-3 py-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#f18449] shadow-[0_0_10px_rgba(241,132,73,0.8)]" />
-                  Interactive session
-                </span>
-                <span className="hidden sm:inline">{String(EIC_DATASETS.length).padStart(2, '0')} streams</span>
-              </div>
-            </div>
-
             <div className="grid gap-6 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(250px,360px)] lg:items-end">
               <div>
                 <p className="mb-3 flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.26em] text-[#e68a55]">
