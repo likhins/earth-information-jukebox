@@ -109,8 +109,8 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
 
     const cx = width / 2;
     // Bias the globe upward to keep its lower edge clear of the fixed color-scale rail.
-    const cy = height * 0.44;
-    const radius = Math.min(width, height) * 0.46 * zoom;
+    const cy = height * 0.45;
+    const radius = Math.min(width, height) * 0.43 * zoom;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -269,7 +269,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       {/* Sampling reticle */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[44%] z-10 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+        className="pointer-events-none absolute left-1/2 top-[45%] z-10 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       >
         <span className="absolute left-0 top-0 h-3.5 w-3.5 border-l border-t border-white/70" />
         <span className="absolute right-0 top-0 h-3.5 w-3.5 border-r border-t border-white/70" />
