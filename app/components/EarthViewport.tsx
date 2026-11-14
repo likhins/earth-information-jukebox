@@ -232,7 +232,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   return (
     <section
       aria-label="Earth visualization viewport"
-      className="polaris-instrument-surface relative h-full w-full select-none overflow-hidden rounded-[18px] border border-[#2a2c2b] bg-[#080909] shadow-[inset_0_1px_0_rgba(255,255,255,0.045),0_28px_90px_rgba(0,0,0,0.42)]"
+      className="polaris-instrument-surface relative h-full w-full select-none overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#080909] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
     >
       <div
         ref={containerRef}
