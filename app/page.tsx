@@ -49,29 +49,26 @@ export default function PolarisDashboard() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-black text-white flex flex-col selection:bg-white/20">
-      {/* Landing / introduction — kept intact */}
-      <section className="relative isolate flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] bg-black px-7 py-20 sm:px-12 lg:px-[9vw]">
+      {/* Cinematic Earth landing section */}
+      <section className="relative isolate flex min-h-[100svh] items-start overflow-hidden border-b border-white/[0.08] bg-black px-7 pb-20 pt-[22svh] sm:px-12 lg:px-[9vw]">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_48%,rgba(255,255,255,0.055),transparent_43%)]" />
-          <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:90px_90px]" />
+          <img
+            src="/earth.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            draggable={false}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/5 to-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-black" />
         </div>
-        <div className="relative z-10 w-full max-w-[340px] pb-10">
-          <p className="mb-4 font-mono text-[10px] tracking-[0.28em] text-white/45 uppercase">Polaris · Earth Information Jukebox</p>
-          <h1 className="text-3xl font-medium leading-[1.08] tracking-[-0.045em] text-white sm:text-4xl">Listen beyond<br />what you can see.</h1>
-          <p className="mt-4 max-w-[260px] text-xs leading-6 text-white/45">An exploration of our planet through data, patterns and sound.</p>
-          <a href="#workspace" className="mt-7 inline-flex items-center gap-2 border-b border-white/35 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/75 uppercase transition hover:border-white hover:text-white">
+        <div className="relative z-10 w-full max-w-[440px]">
+          <p className="mb-4 font-mono text-[10px] tracking-[0.28em] text-white/55 uppercase">Polaris · Earth Information Jukebox</p>
+          <h1 className="text-3xl font-medium leading-[1.08] tracking-[-0.045em] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.7)] sm:text-5xl">Listen beyond<br />what you can see.</h1>
+          <p className="mt-4 max-w-[320px] text-sm leading-6 text-white/65 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">An exploration of our planet through data, patterns and sound.</p>
+          <a href="#workspace" className="mt-7 inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
             Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
           </a>
-        </div>
-        <div className="pointer-events-none absolute right-[1%] top-1/2 aspect-square w-[min(658px,58vw)] -translate-y-1/2 sm:right-[2%] lg:right-[3%]" aria-hidden="true">
-          <div className="polaris-wire-globe absolute inset-0">
-            <img
-              src="/globe.webp"
-              alt="Monochrome dotted wireframe globe"
-              className="h-full w-full object-contain"
-              draggable={false}
-            />
-          </div>
         </div>
       </section>
 
