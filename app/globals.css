@@ -303,3 +303,24 @@ button:focus-visible,
 @media (max-width: 639px) {
   .polaris-star-heading-frame { height: 48px; }
 }
+
+
+/* Final dashboard title sizing: medium star-particle lettering, static dotted wave. */
+.polaris-star-heading-frame {
+  width: min(100%, 980px);
+  height: 78px;
+  flex: 0 0 auto;
+}
+.polaris-dashboard-title .polaris-star-heading {
+  width: 100%;
+  height: 100%;
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+.polaris-dashboard-title > div { width: 100%; }
+.polaris-dashboard-title svg { display: block; }
+@media (max-width: 639px) {
+  .polaris-star-heading-frame { height: 52px; }
+}
