@@ -65,10 +65,33 @@ export default function PolarisDashboard() {
             href="#workspace"
             onClick={(event) => {
               event.preventDefault();
-              document.getElementById("workspace")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
+              const target = document.getElementById("workspace");
+              if (!target) return;
+
+              const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              const startY = window.scrollY;
+              const targetY = target.getBoundingClientRect().top + startY;
+              const distance = targetY - startY;
+
+              if (reduceMotion || Math.abs(distance) < 2) {
+                window.scrollTo(0, targetY);
+                return;
+              }
+
+              const duration = 1900;
+              const startTime = performance.now();
+              const easeInOutCubic = (progress: number) =>
+                progress < 0.5
+                  ? 4 * progress * progress * progress
+                  : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+              const animateScroll = (now: number) => {
+                const progress = Math.min((now - startTime) / duration, 1);
+                window.scrollTo(0, startY + distance * easeInOutCubic(progress));
+                if (progress < 1) requestAnimationFrame(animateScroll);
+              };
+
+              requestAnimationFrame(animateScroll);
             }}
             className="inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white"
           >
