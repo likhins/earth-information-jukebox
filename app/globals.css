@@ -179,3 +179,13 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .polaris-dashboard-title h1 { animation: none; opacity: 1; transform: none; }
 }
+
+
+.polaris-section-title h2 {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: polaris-dashboard-title-in 850ms cubic-bezier(.2,.75,.25,1) 260ms forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .polaris-section-title h2 { animation: none; opacity: 1; transform: none; }
+}
