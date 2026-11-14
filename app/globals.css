@@ -189,3 +189,43 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .polaris-section-title h2 { animation: none; opacity: 1; transform: none; }
 }
+
+
+/* Compact Polaris identity header: bold display type and a restrained live signal. */
+.polaris-dashboard-title h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: polaris-dashboard-title-in 800ms cubic-bezier(.2,.75,.25,1) 120ms forwards;
+}
+.polaris-heading-wave {
+  display: inline-flex;
+  height: 15px;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.polaris-heading-wave i {
+  display: block;
+  width: 2px;
+  height: 4px;
+  border-radius: 2px;
+  background: #e58a56;
+  opacity: .8;
+  transform-origin: center;
+  animation: polaris-heading-wave 1.05s ease-in-out infinite;
+}
+.polaris-heading-wave i:nth-child(2n) { animation-delay: -.25s; }
+.polaris-heading-wave i:nth-child(3n) { animation-delay: -.55s; }
+.polaris-heading-wave i:nth-child(4n) { animation-delay: -.75s; }
+.polaris-heading-wave i:nth-child(3n + 1) { height: 8px; }
+.polaris-heading-wave i:nth-child(4n + 2) { height: 12px; }
+@keyframes polaris-heading-wave {
+  0%, 100% { transform: scaleY(.45); opacity: .45; }
+  50% { transform: scaleY(1.35); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .polaris-dashboard-title h1 { animation: none; opacity: 1; transform: none; }
+  .polaris-heading-wave i { animation: none; transform: none; }
+}
