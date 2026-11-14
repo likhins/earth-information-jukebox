@@ -119,9 +119,9 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto max-w-[1800px]">
-          <header className="polaris-dashboard-title mb-[clamp(150px,20vh,280px)] flex min-h-[76px] items-center justify-start overflow-visible">
+          <header className="polaris-dashboard-title mb-[clamp(120px,16vh,210px)] flex min-h-[76px] items-center justify-start overflow-visible">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <div className="w-full max-w-[1040px]"><StarHeading text="Earth, in another language." /></div>
+              <div className="w-full max-w-[1200px]"><StarHeading text="Earth, in another language." /></div>
               <div className="flex items-center gap-3">
                 <span className="polaris-heading-wave" aria-hidden="true">
                   <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
@@ -200,7 +200,7 @@ export default function PolarisDashboard() {
             {/* Spatial instrument and sound processor */}
             <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 bg-[#090a0a] p-3 sm:p-4 lg:p-4">
               <section id="field-explorer" className="flex min-h-0 flex-[1.35] flex-col scroll-mt-6">
-                <div className="mt-2 min-h-[340px] flex-1 lg:min-h-0">
+                <div className="mt-2 min-h-[480px] flex-1 lg:min-h-[500px]">
                   <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
                 </div>
               </section>
