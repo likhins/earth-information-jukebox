@@ -67,3 +67,65 @@ button:focus-visible,
   html { scroll-behavior: auto; }
   .polaris-wire-globe { animation: none; }
 }
+
+
+/* Quiet celestial motion for the landing copy */
+.polaris-copy {
+  position: relative;
+  animation: polaris-copy-drift 11s ease-in-out infinite;
+  will-change: transform;
+}
+.polaris-copy-title { animation-delay: -3s; }
+.polaris-copy-description { animation-delay: -6s; }
+.polaris-copy-link { animation-delay: -8s; }
+.polaris-copy-label { animation-delay: -1s; }
+
+.polaris-constellation {
+  opacity: .48;
+  transform-origin: 48% 42%;
+  animation: polaris-constellation-drift 24s ease-in-out infinite;
+}
+.polaris-constellation circle {
+  filter: drop-shadow(0 0 3px rgba(210,232,255,.75));
+  animation: polaris-star-twinkle 5s ease-in-out infinite alternate;
+}
+.polaris-constellation circle:nth-child(2n) { animation-delay: -2.2s; }
+.polaris-constellation circle:nth-child(3n) { animation-delay: -3.7s; }
+
+.polaris-shooting-star {
+  position: absolute;
+  width: 110px;
+  height: 1px;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(190,220,255,.18), rgba(225,240,255,.95));
+  filter: drop-shadow(0 0 4px rgba(160,205,255,.8));
+  transform: rotate(-28deg);
+  animation: polaris-shoot 9s linear infinite;
+}
+.polaris-shooting-star-one { top: 19%; left: 57%; animation-delay: 1.5s; }
+.polaris-shooting-star-two { top: 32%; left: 78%; width: 78px; animation-delay: 5.8s; animation-duration: 11s; }
+.polaris-shooting-star-three { top: 12%; left: 32%; width: 64px; animation-delay: 8.1s; animation-duration: 12s; }
+
+@keyframes polaris-copy-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -3px, 0); }
+}
+@keyframes polaris-constellation-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); opacity: .34; }
+  50% { transform: translate3d(5px, -4px, 0) rotate(1deg); opacity: .58; }
+}
+@keyframes polaris-star-twinkle {
+  from { opacity: .48; }
+  to { opacity: 1; }
+}
+@keyframes polaris-shoot {
+  0%, 72% { opacity: 0; transform: translate3d(0,0,0) rotate(-28deg); }
+  74% { opacity: .9; }
+  82% { opacity: 0; transform: translate3d(-190px,110px,0) rotate(-28deg); }
+  100% { opacity: 0; transform: translate3d(-190px,110px,0) rotate(-28deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .polaris-copy, .polaris-constellation, .polaris-constellation circle, .polaris-shooting-star {
+    animation: none !important;
+  }
+}
