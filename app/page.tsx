@@ -12,7 +12,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { Activity, ArrowDownRight, AudioLines, Compass, Layers, Orbit, ScanLine } from 'lucide-react';
+import { ArrowDownRight, AudioLines, Compass, Layers, Orbit, ScanLine } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
