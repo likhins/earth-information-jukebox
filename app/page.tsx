@@ -110,7 +110,7 @@ export default function PolarisDashboard() {
       </section>
 
       {/* Interactive workspace */}
-      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-3 py-5 text-white sm:px-5 lg:h-[100svh] lg:min-h-[680px] lg:px-[3vw] lg:py-6">
+      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#070808] px-3 py-4 text-white sm:px-5 lg:h-[100svh] lg:min-h-[680px] lg:px-[3vw] lg:py-4">
         <div className="pointer-events-none absolute inset-x-0 -top-32 z-0 h-64 bg-gradient-to-b from-transparent via-[#070808]/90 to-[#070808]" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.045]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:64px_64px]" />
@@ -118,12 +118,22 @@ export default function PolarisDashboard() {
         </div>
 
         <div className="relative mx-auto max-w-[1800px]">
-          <header className="polaris-dashboard-title mb-3 flex min-h-10 items-center justify-start overflow-hidden lg:mb-3">
-            <h1 className="text-left font-sans text-[clamp(1.25rem,2.1vw,2rem)] font-medium leading-none tracking-[-0.065em] text-[#f2f0eb]">
-              Earth, in another language.
-            </h1>
+          <header className="polaris-dashboard-title mb-2 flex min-h-[58px] items-center justify-start overflow-hidden lg:mb-2">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <h1 className="text-left font-sans text-[clamp(1.8rem,3vw,2.65rem)] font-bold leading-[0.98] tracking-[-0.065em] text-[#f2f0eb]">
+                Earth, in another language.
+              </h1>
+              <div className="flex items-center gap-3">
+                <span className="polaris-heading-wave" aria-hidden="true">
+                  <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
+                </span>
+                <p className="font-sans text-[clamp(0.72rem,1vw,0.9rem)] font-semibold tracking-[-0.035em] text-white/45">
+                  Listen beyond what you can see.
+                </p>
+              </div>
+            </div>
           </header>
-          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-64px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[20px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:h-[calc(100svh-104px)] lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
 
             {/* Dataset registry */}
             <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:flex lg:flex-col lg:border-b-0 lg:border-r lg:border-white/[0.11]">
