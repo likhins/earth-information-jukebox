@@ -110,28 +110,28 @@ export default function PolarisDashboard() {
       </section>
 
       {/* Interactive workspace */}
-      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-black px-4 py-16 sm:px-7 lg:px-[5vw]">
+      <main id="workspace" className="relative min-h-screen scroll-mt-0 overflow-hidden bg-[#030405] px-4 py-14 sm:px-7 lg:px-[5vw] lg:py-20">
         <div className="pointer-events-none absolute inset-0 opacity-[0.035]" aria-hidden="true">
           <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:90px_90px]" />
         </div>
-        <div className="relative mx-auto max-w-[1680px]">
-          <header className="mb-8 flex flex-col justify-between gap-5 border-b border-white/[0.12] pb-5 sm:flex-row sm:items-end">
+        <div className="relative mx-auto max-w-[1760px]">
+          <header className="mb-8 flex flex-col justify-between gap-6 border-b border-white/[0.14] pb-7 sm:flex-row sm:items-end lg:mb-10">
             <div>
-              <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.3em] text-white/35">Polaris / Field interface</p>
-              <h2 className="text-2xl font-medium tracking-[-0.045em] text-white sm:text-3xl">Earth, in another language.</h2>
-              <p className="mt-2 max-w-xl text-xs leading-6 text-white/45">Move through the signal. Find a region. Listen to what the data reveals.</p>
+              <p className="mb-4 flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.28em] text-white/40"><span className="h-px w-7 bg-white/40" /> Polaris <span className="text-white/20">/</span> Earth information jukebox</p>
+              <h2 className="text-3xl font-medium tracking-[-0.055em] text-white sm:text-4xl lg:text-[3.25rem]">Earth, in another language.</h2>
+              <p className="mt-3 max-w-xl text-[13px] leading-6 text-white/45 sm:text-sm">Move through the signal. Find a region. Listen to what the data reveals.</p>
             </div>
-            <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
+            <div className="flex items-center gap-3 self-start rounded-full border border-white/[0.12] bg-white/[0.025] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.18em] text-white/45 sm:self-auto">
               <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-white/70" /> Interactive field</span>
               <span className="text-white/20">/</span>
               <span>01 — 09</span>
             </div>
           </header>
 
-          <div className="grid min-h-0 grid-cols-1 gap-8 lg:grid-cols-[250px_minmax(0,1fr)] xl:gap-12">
+          <div className="grid min-h-0 grid-cols-1 gap-6 lg:grid-cols-[290px_minmax(0,1fr)] xl:gap-8">
             {/* Dataset index */}
-            <aside aria-label="Dataset registry" className="min-h-0 font-mono lg:pt-1">
-              <div className="mb-4 flex items-center justify-between border-b border-white/[0.12] pb-3">
+            <aside aria-label="Dataset registry" className="min-h-0 rounded-2xl border border-white/[0.11] bg-[#080a0d]/90 p-5 font-mono shadow-[0_24px_80px_rgba(0,0,0,0.22)] lg:p-6">
+              <div className="mb-5 flex items-center justify-between border-b border-white/[0.12] pb-4">
                 <div className="flex items-center gap-2 text-white/75">
                   <Layers className="h-3.5 w-3.5 text-white/55" />
                   <h3 className="text-[10px] font-medium uppercase tracking-[0.2em]">Data streams</h3>
@@ -139,16 +139,16 @@ export default function PolarisDashboard() {
                 <span className="text-[9px] tabular-nums text-white/35">{EIC_DATASETS.length} available</span>
               </div>
 
-              <div className="mb-5 flex flex-wrap gap-x-3 gap-y-2 border-b border-white/[0.08] pb-4">
+              <div className="mb-5 flex flex-wrap gap-2 border-b border-white/[0.08] pb-5">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`cursor-pointer text-[9px] uppercase tracking-[0.12em] transition-colors ${
+                    className={`cursor-pointer rounded-full border px-2.5 py-1.5 text-[8px] uppercase tracking-[0.12em] transition-colors ${
                       selectedCategory === cat
-                        ? 'text-white'
-                        : 'text-white/35 hover:text-white/75'
+                        ? 'border-white/30 bg-white/[0.09] text-white'
+                        : 'border-transparent text-white/35 hover:border-white/15 hover:bg-white/[0.04] hover:text-white/75'
                     }`}
                   >
                     {cat === 'Land & Human' ? 'Land' : cat}
@@ -157,7 +157,7 @@ export default function PolarisDashboard() {
                 ))}
               </div>
 
-              <div role="radiogroup" aria-label="Select a dataset" className="max-h-72 space-y-0 overflow-y-auto pr-2 lg:max-h-[calc(100svh-340px)] polaris-scroll">
+              <div role="radiogroup" aria-label="Select a dataset" className="max-h-80 space-y-1 overflow-y-auto pr-2 lg:max-h-[min(52vh,520px)] polaris-scroll">
                 {filteredDatasets.map((ds, index) => {
                   const selected = ds.id === activeDatasetId;
                   return (
@@ -167,8 +167,8 @@ export default function PolarisDashboard() {
                       role="radio"
                       aria-checked={selected}
                       onClick={() => setActiveDatasetId(ds.id)}
-                      className={`group flex w-full cursor-pointer items-start gap-3 border-b border-white/[0.08] py-3.5 text-left transition-colors ${
-                        selected ? 'text-white' : 'text-white/40 hover:text-white/80'
+                      className={`group flex w-full cursor-pointer items-start gap-3 rounded-lg border border-transparent px-2.5 py-3.5 text-left transition-all ${
+                        selected ? 'border-white/[0.13] bg-white/[0.055] text-white' : 'text-white/40 hover:bg-white/[0.035] hover:text-white/80'
                       }`}
                     >
                       <span className={`pt-0.5 text-[9px] tabular-nums ${
@@ -191,24 +191,24 @@ export default function PolarisDashboard() {
                 })}
               </div>
 
-              <div className="mt-6 border-t border-white/[0.12] pt-4">
-                <div className="mb-2 flex items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-white/35">
+              <div className="mt-5 rounded-xl border border-white/[0.09] bg-white/[0.025] p-4">
+                <div className="mb-3 flex items-center gap-2 text-[8px] uppercase tracking-[0.2em] text-white/40">
                   <ScanLine className="h-3 w-3" /> Active observation
                 </div>
-                <p className="font-sans text-[11px] leading-5 text-white/55">{activeDataset.description}</p>
+                <p className="font-sans text-xs leading-5 text-white/60">{activeDataset.description}</p>
               </div>
             </aside>
 
             {/* Globe and sonic instrument */}
             <div className="min-w-0">
-              <div className="mb-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.17em] text-white/35">
+              <div className="mb-3 flex items-center justify-between px-1 font-mono text-[9px] uppercase tracking-[0.17em] text-white/40">
                 <span className="inline-flex items-center gap-2"><Activity className="h-3 w-3" /> Live field explorer</span>
                 <span>Drag / rotate · Scroll / zoom</span>
               </div>
-              <div className="h-[440px] min-h-0 sm:h-[540px] lg:h-[min(62vw,680px)] lg:max-h-[680px]">
+              <div className="h-[500px] min-h-0 sm:h-[590px] lg:h-[min(58vw,720px)] lg:max-h-[720px]">
                 <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
               </div>
-              <div className="mt-8">
+              <div className="mt-6">
                 <SonificationWorkstation
                   output={sonificationOutput}
                   onGenerate={handleGenerateTrack}
