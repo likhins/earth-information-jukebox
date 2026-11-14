@@ -59,9 +59,9 @@ export default function PolarisDashboard() {
           <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-b from-transparent via-black/65 to-black" />
           <div className="absolute inset-x-0 -bottom-1 h-40 bg-gradient-to-b from-transparent to-black" />
         </div>
-        <div className="relative z-10 w-full max-w-[440px]">
-          <StarText />
-          <a href="#workspace" className="mt-7 inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
+        <StarText />
+        <div className="absolute left-7 top-[73%] z-10 sm:left-12 lg:left-[9vw]">
+          <a href="#workspace" className="inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-white hover:text-white">
             Explore the experience <ArrowDownRight className="h-3.5 w-3.5" />
           </a>
         </div>
