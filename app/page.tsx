@@ -60,7 +60,8 @@ export default function PolarisDashboard() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/5 to-black/55" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-black" />
+          <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-b from-transparent via-black/65 to-black" />
+          <div className="absolute inset-x-0 -bottom-1 h-40 bg-gradient-to-b from-transparent to-black" />
         </div>
         <div className="relative z-10 w-full max-w-[440px]">
           <p className="mb-4 font-mono text-[10px] tracking-[0.28em] text-white/55 uppercase">Polaris · Earth Information Jukebox</p>
