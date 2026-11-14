@@ -11,7 +11,7 @@ import {
 import { runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
-import { Database, Radio, Globe2 } from 'lucide-react';
+import { Globe2, Layers } from 'lucide-react';
 
 const CATEGORIES: ('All' | DatasetCategory)[] = [
   'All',
@@ -38,9 +38,7 @@ export default function PolarisDashboard() {
       : EIC_DATASETS.filter((d) => d.category === selectedCategory);
 
   useEffect(() => {
-    const updateClock = () => {
-      setUtcTime(new Date().toISOString().slice(11, 19));
-    };
+    const updateClock = () => setUtcTime(new Date().toISOString().slice(11, 19));
     updateClock();
     const timer = setInterval(updateClock, 1000);
     return () => clearInterval(timer);
@@ -58,71 +56,72 @@ export default function PolarisDashboard() {
   }, [activeDataset, latestFeatures]);
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col">
-      {/* Top Mission Control Header */}
-      <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 bg-slate-950 border-b border-slate-800/90 font-mono">
+    <div className="h-screen w-screen overflow-hidden bg-[#030712] text-slate-100 flex flex-col selection:bg-sky-500/30">
+      {/* Minimalist Top Bar */}
+      <header className="h-12 shrink-0 flex items-center justify-between px-5 bg-slate-950/90 border-b border-white/[0.07] font-mono">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-bold">
+          <div className="flex items-center gap-2 text-sky-400">
             <Globe2 className="w-4 h-4" />
-            <span>NASA SPACE APPS 2026</span>
+            <span className="text-xs font-bold tracking-widest uppercase">POLARIS</span>
           </div>
-          <h1 className="text-sm sm:text-base font-bold tracking-wide">
-            <span className="text-white">POLARIS</span>
-            <span className="text-slate-600 mx-2">//</span>
-            <span className="text-slate-300 font-normal">Earth Information Jukebox</span>
-          </h1>
+          <span className="text-slate-700">/</span>
+          <span className="text-xs text-slate-400 hidden sm:inline">
+            NASA Space Apps 2026 · Earth Information Jukebox
+          </span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs">
-          <span className="text-slate-400">
-            UTC <strong className="text-slate-200">{utcTime}</strong>
+        <div className="flex items-center gap-4 text-[11px]">
+          <span className="text-slate-500">
+            UTC <span className="text-slate-300">{utcTime}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            SML CLIENT READY
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            SML ONLINE
           </span>
         </div>
       </header>
 
-      {/* Main 3-Zone Workspace */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[310px_1fr] gap-4 p-4 max-w-[1600px] w-full mx-auto">
-        {/* Left Sidebar: 9-Dataset Registry */}
+      {/* Main Bento Grid Fitting 100% Remaining Viewport */}
+      <main className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[270px_1fr] gap-3 p-3">
+        {/* Left Stream Rail */}
         <aside
           aria-label="Dataset registry"
-          className="flex flex-col bg-slate-950 border border-slate-800/80 rounded-xl p-4 font-mono"
+          className="min-h-0 flex flex-col bg-slate-950/70 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3 font-mono"
         >
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-            <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-sky-400" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                EIC Dataset Registry
+          <div className="flex items-center justify-between px-1 pb-2.5">
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <Layers className="w-3.5 h-3.5 text-sky-400" />
+              <h2 className="text-[11px] font-semibold tracking-wider uppercase">
+                Data Streams
               </h2>
             </div>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-sky-300">
-              {EIC_DATASETS.length} STREAMS
-            </span>
+            <span className="text-[10px] text-slate-500">{EIC_DATASETS.length} EIC</span>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-1.5 my-3">
+          {/* Sleek Category Tabs */}
+          <div className="flex flex-wrap gap-1 mb-2.5">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2 py-1 rounded text-[11px] transition cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md text-[10px] transition cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-sky-500 text-slate-950 font-bold'
-                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 font-semibold'
+                    : 'text-slate-500 hover:text-slate-300 border border-transparent'
                 }`}
               >
-                {cat}
+                {cat === 'Land & Human' ? 'Land' : cat}
               </button>
             ))}
           </div>
 
-          {/* Dataset Radio List */}
-          <div role="radiogroup" aria-label="Select a dataset" className="space-y-2 overflow-y-auto flex-1 pr-1">
+          {/* Compact Stream List */}
+          <div
+            role="radiogroup"
+            aria-label="Select a dataset"
+            className="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin"
+          >
             {filteredDatasets.map((ds) => {
               const selected = ds.id === activeDatasetId;
               return (
@@ -132,29 +131,42 @@ export default function PolarisDashboard() {
                   role="radio"
                   aria-checked={selected}
                   onClick={() => setActiveDatasetId(ds.id)}
-                  className={`w-full text-left p-3 rounded-lg border transition cursor-pointer ${
+                  className={`w-full text-left px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-2 ${
                     selected
-                      ? 'bg-sky-500/10 border-sky-500/60 shadow-[0_0_15px_rgba(56,189,248,0.12)]'
-                      : 'bg-slate-900/50 border-slate-800/80 hover:border-slate-700'
+                      ? 'bg-gradient-to-r from-sky-500/15 to-transparent border border-sky-500/40 text-white'
+                      : 'bg-white/[0.02] hover:bg-white/[0.05] border border-transparent text-slate-400'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-[11px] mb-1">
-                    <span className="text-sky-400 font-semibold">{ds.shortCode}</span>
-                    <span className="text-slate-500">{ds.category}</span>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold truncate">{ds.name}</div>
+                    <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                      <span className={selected ? 'text-sky-400' : ''}>{ds.shortCode}</span>
+                      <span>·</span>
+                      <span>{ds.unit}</span>
+                    </div>
                   </div>
-                  <div className="text-xs font-bold text-slate-100">{ds.name}</div>
-                  <p className="text-[11px] text-slate-400 font-sans mt-1 line-clamp-2">
-                    {ds.description}
-                  </p>
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: ds.fallbackColors[2] }}
+                  />
                 </button>
               );
             })}
           </div>
+
+          {/* Active Dataset Summary Footer */}
+          <div className="mt-2.5 pt-2.5 border-t border-white/[0.06] px-1">
+            <p className="text-[11px] leading-relaxed text-slate-400 font-sans line-clamp-2">
+              {activeDataset.description}
+            </p>
+          </div>
         </aside>
 
-        {/* Right Column: Viewport + Sonification Workstation */}
-        <div className="flex flex-col gap-4">
-          <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
+        {/* Right Column: Flexible Globe Canvas + Compact Bottom Audio Deck */}
+        <div className="min-h-0 flex flex-col gap-3">
+          <div className="flex-1 min-h-0">
+            <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
+          </div>
           <SonificationWorkstation
             output={sonificationOutput}
             onGenerate={handleGenerateTrack}
