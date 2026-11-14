@@ -282,3 +282,27 @@ button:focus-visible,
 @media (max-width: 639px) {
   .polaris-dashboard-title .polaris-star-heading { height: 88px; }
 }
+
+
+/* Dashboard title: moderate particle wordmark, long static dotted signal wave. */
+.polaris-star-heading-frame {
+  display: block;
+  width: min(100%, 1160px);
+  height: 82px;
+  flex: 0 0 auto;
+}
+.polaris-star-heading {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.polaris-dashboard-title > div {
+  width: 100%;
+}
+.polaris-dashboard-title svg path {
+  stroke-dasharray: 0.1 10;
+  stroke-linecap: round;
+}
+@media (max-width: 639px) {
+  .polaris-star-heading-frame { height: 48px; }
+}
