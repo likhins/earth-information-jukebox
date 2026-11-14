@@ -150,9 +150,10 @@ export default function PolarisDashboard() {
             </div>
           </header>
 
-          <div className="grid min-h-0 grid-cols-1 gap-3 lg:grid-cols-[292px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-4">
+          <div className="grid min-h-0 grid-cols-1 overflow-hidden rounded-[22px] border border-white/[0.13] bg-[#0a0b0b] shadow-[0_28px_90px_rgba(0,0,0,0.32)] lg:grid-cols-[292px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+
             {/* Dataset registry */}
-            <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0d0e0e] shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+            <aside id="dataset-registry" aria-label="Dataset registry" className="order-1 min-h-0 scroll-mt-6 overflow-hidden border-b border-white/[0.11] bg-[#0d0e0e] lg:border-b-0 lg:border-r lg:border-white/[0.11]">
               <div className="flex items-center justify-between border-b border-white/[0.1] px-4 py-4 lg:px-5">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.1] bg-white/[0.035] text-[#e58a56]">
@@ -225,11 +226,14 @@ export default function PolarisDashboard() {
             </aside>
 
             {/* Spatial instrument and sound processor */}
-            <div className="order-2 min-w-0 space-y-4">
+            <div className="order-2 min-w-0 space-y-4 bg-[#090a0a] p-3 sm:p-4 lg:p-5">
               <section id="field-explorer" className="scroll-mt-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.12] pb-3">
                   <div>
-                      <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
+                      <div>
+                    <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Live field explorer</h3>
+                    <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">{activeDataset.shortCode} <span className="px-1 text-white/15">/</span> {activeDataset.name}</p>
+                  </div>
                   </div>
                 </div>
                 <div className="mt-3 h-[430px] min-h-0 sm:h-[540px] lg:h-[min(52vw,680px)] lg:max-h-[680px]">
