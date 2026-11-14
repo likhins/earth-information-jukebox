@@ -109,7 +109,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
 
     const cx = width / 2;
     const cy = height / 2;
-    const radius = Math.min(width, height) * 0.46 * zoom;
+    const radius = Math.min(width, height) * 0.49 * zoom;
 
     ctx.clearRect(0, 0, width, height);
 
