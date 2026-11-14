@@ -129,3 +129,8 @@ button:focus-visible,
     animation: none !important;
   }
 }
+
+
+/* Star particles assemble into the landing-page typography */
+.star-text-wrap { width: 100%; height: 248px; position: relative; }
+.star-text-canvas { display: block; width: 100%; height: 100%; }
