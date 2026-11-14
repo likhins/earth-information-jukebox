@@ -2,7 +2,7 @@
 
 :root {
   --background: #000000;
-  --foreground: #e2e8f0;
+  --foreground: #e5e5e5;
 }
 
 @theme inline {
@@ -12,8 +12,13 @@
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
+html {
+  background: #000;
+  scroll-behavior: smooth;
+}
+
 body {
-  background: #000000;
+  background: #000;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   min-width: 320px;
@@ -21,22 +26,36 @@ body {
 
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid #7dd3fc;
-  outline-offset: 3px;
+  outline: 1px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
 }
 
 ::selection {
-  background: rgba(14, 165, 233, 0.35);
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
 }
-
-
-
 
 .polaris-wire-globe {
   filter: drop-shadow(0 0 26px rgba(255,255,255,0.08));
   animation: globe-breathe 12s ease-in-out infinite;
   mask-image: radial-gradient(circle at 50% 50%, #000 55%, rgba(0,0,0,.85) 76%, transparent 100%);
+}
+
+.polaris-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+.polaris-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.polaris-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.polaris-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 @keyframes globe-breathe {
@@ -45,5 +64,6 @@ button:focus-visible,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .polaris-wire-globe { animation: none; }
 }
