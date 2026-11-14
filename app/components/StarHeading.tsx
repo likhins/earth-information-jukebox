@@ -64,9 +64,11 @@ export default function StarHeading({ text: value }: Props) {
   }, [value]);
 
   return (
-    <div className="polaris-star-heading-frame" aria-hidden="true">
-      <canvas ref={canvasRef} className="polaris-star-heading" />
+    <>
+      <div className="polaris-star-heading-frame">
+        <canvas ref={canvasRef} className="polaris-star-heading" aria-hidden="true" />
+      </div>
       <h1 className="sr-only">{value}</h1>
-    </div>
+    </>
   );
 }
