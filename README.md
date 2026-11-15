@@ -73,7 +73,6 @@ npm run dev
 * **Febin Baiju** - Engineered the zero-download NASA GIBS WMTS client-side tiling pipeline across 9 active observation layers, the custom 3D orthographic globe renderer with inverse raycasting and offline fallbacks, and the high-contrast mission-control telemetry HUD featuring the 16-step dot-matrix sequencer and WebGL2 hardware-styled controls.
 * **Advait Varma** — Engineered the NASA GIBS offscreen canvas telemetry extractor (`gibsOffscreen.ts`), SLM JSON schema/fallback pipeline (`smlPipeline.ts`), `/api/sonify` route, and foundational 16-step Tone.js sequencer.
 * **Rohit Fernantez** — Deployed and tuned the GCP `polaris-slm` (Qwen-2.5-3B) inference backend, hardened API concurrency/security, and expanded the Tone.js DSP synthesis chain with pitch sanitization and memory management.
-* 
 ---
 
 ## 📄 License
