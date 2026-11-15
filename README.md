@@ -35,7 +35,7 @@ NASA’s Earth Information Center provides extraordinary visual insights into gl
 
 ## 🛠️ Tech Stack
 * **Frontend & Framework:** Next.js (App Router, Turbopack), TypeScript, Tailwind CSS
-* **Audio Engine:** Tone.js / Web Audio API
+* **Audio Engine:** A custom-trained Qwen 2.5B model, trained on 900 custom datasets curated from 9 NASA datasets, integrated with Tone.js.
 * **Data Sources:** NASA Earth Information Center (EIC), NASA GIBS (Global Imagery Browse Services)
 * **Deployment:** Vercel
 
@@ -57,3 +57,13 @@ npm install
 
 # Run the development server
 npm run dev
+```
+
+## 🏆 NASA Space Apps Challenge Alignment
+
+* **POLARIS** directly addresses "The Earth Information Jukebox" challenge by turning planetary data streams into a creative, educational, and fully accessible auditory experience.
+
+##👥 Team **POLARIS**
+
+##📄 License
+*Released under the MIT License. Built with 💙 for NASA Space Apps 2026*
