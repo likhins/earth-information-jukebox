@@ -228,10 +228,11 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #065f46, #facc15, #991b1b)',
     description: 'Column-averaged dry air mole fraction of carbon dioxide across hemispheres.',
     textureUrl: '',
-    gibs: {
-    layerId: 'AIRS_L2_Carbon_Monoxide_500hPa_Volume_Mixing_Ratio_Day',
+    // Inside co2_concentration in app/lib/datasets.ts
+  gibs: {
+    layerId: 'AIRS_L3_Carbon_Monoxide_500hPa_Volume_Mixing_Ratio_Monthly_Day',
     matrixSet: 'GoogleMapsCompatible_Level6',
-    date: '2025-10-15',
+    date: '2025-10-01',
     zoom: 3,
     ext: 'png',
   },
@@ -297,13 +298,14 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #0f172a, #a855f7, #fb923c)',
     description: 'Atmospheric dust, wildfire smoke, and sulfate particulate density.',
     textureUrl: '',
-    gibs: {
-      layerId: 'OMPS_Aerosol_Index',
-      matrixSet: 'GoogleMapsCompatible_Level6',
-      date: '2025-10-15',
-      zoom: 4,
-      ext: 'png',
-    },
+    // Inside aerosol_optical in app/lib/datasets.ts
+  gibs: {
+    layerId: 'MODIS_Combined_Value_Added_AOD',
+    matrixSet: 'GoogleMapsCompatible_Level6',
+    date: '2025-10-15',
+    zoom: 4,
+    ext: 'png',
+  },
     fallbackColors: ['#0f172a', '#7e22ce', '#f97316'],
     hotspots: [
       { id: 'sahara_plume', label: 'Saharan Dust Plume', lat: 16.5, lon: -22.0, summary: 'Trans-Atlantic mineral plume creating sweeping pad modulation.' },

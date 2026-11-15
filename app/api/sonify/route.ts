@@ -1,3 +1,8 @@
+// ============================================================================
+// AI AGENT LOCK: PRODUCTION SLM PIPELINE — DO NOT MODIFY THIS FILE.
+// See AGENTS.md for architectural boundaries.
+// ============================================================================
+
 import { NextRequest, NextResponse } from 'next/server';
 import { SlmSonificationInput, SlmSonificationOutput } from '@/app/lib/datasets';
 import { buildProceduralFallback } from '@/app/lib/smlPipeline';

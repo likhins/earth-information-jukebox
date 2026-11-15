@@ -17,7 +17,6 @@ import {
   extractReticleFeaturesFromGibs,
   requestSlmSonification,
   buildSlmInputPayload,
-  buildProceduralFallback,
 } from './lib/smlPipeline';
 import { ArrowDownRight } from 'lucide-react';
 
@@ -97,6 +96,7 @@ export default function PolarisDashboard() {
       setLatestFeatures(gibsFeatures);
       setActiveSlmInput(slmInput);
 
+      // Query our hosted polaris-slm on GCP Ollama
       const result = await requestSlmSonification(slmInput, controller.signal);
 
       if (requestCounterRef.current === currentRequestId && !controller.signal.aborted) {
@@ -143,15 +143,14 @@ export default function PolarisDashboard() {
         <div className="absolute left-7 top-[73%] z-10 sm:left-12 lg:left-[9vw]">
           <a
             href="#workspace"
-            onClick={(event) => {
-              event.preventDefault();
+            onClick={(e) => {
+              e.preventDefault();
               const target = document.getElementById('workspace');
               if (!target) return;
 
-              const scroller = document.scrollingElement ?? document.documentElement;
+              const scroller = document.scrollingElement || document.documentElement;
               const startY = scroller.scrollTop;
-              const targetY = target.getBoundingClientRect().top + startY;
-              const distance = targetY - startY;
+              const distance = target.offsetTop - startY;
 
               if (Math.abs(distance) < 2) return;
 
@@ -166,21 +165,19 @@ export default function PolarisDashboard() {
                 const progress = Math.min((now - startTime) / duration, 1);
                 const nextY = startY + distance * easeInOutCubic(progress);
                 scroller.scrollTop = nextY;
+
                 if (progress < 1) requestAnimationFrame(animateScroll);
               };
 
               requestAnimationFrame(animateScroll);
             }}
-            className="inline-flex items-center gap-2 border-b border-white/55 pb-2 font-mono text-[10px] tracking-[0.16em] text-white/85 uppercase transition hover:border-[#e56d36] hover:text-white"
+            className="group inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.24em] text-white/55 transition-colors duration-300 hover:text-white"
           >
-            Explore the experience <ArrowDownRight className="h-3.5 w-3.5 text-[#e56d36]" />
+            <span className="border-b border-white/20 pb-0.5 uppercase transition-colors duration-300 group-hover:border-white">
+              Explore the experience
+            </span>
+            <ArrowDownRight className="h-3.5 w-3.5 text-white/40 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:translate-y-0.5 group-hover:text-white" />
           </a>
-        </div>
-
-        <div className="polaris-shooting-stars pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <span className="polaris-shooting-star polaris-shooting-star-one" />
-          <span className="polaris-shooting-star polaris-shooting-star-two" />
-          <span className="polaris-shooting-star polaris-shooting-star-three" />
         </div>
       </section>
 
@@ -275,7 +272,7 @@ export default function PolarisDashboard() {
               </div>
             </aside>
 
-            {/* Right / Center: Globe Viewport large 80vh floating unboxed directly on the scene */}
+            {/* Right / Center: Friend's Globe Viewport */}
             <div className="relative h-[90vw] sm:h-[480px] lg:h-[76vh] lg:min-h-[580px] lg:max-h-[820px] w-full min-w-0 shrink-0 lg:flex-1 order-1 lg:order-2 flex items-center justify-center">
               <EarthViewport dataset={activeDataset} onSampleUpdate={setLatestFeatures} />
             </div>

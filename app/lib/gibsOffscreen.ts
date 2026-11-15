@@ -1,3 +1,8 @@
+// ============================================================================
+// AI AGENT LOCK: PRODUCTION SLM PIPELINE — DO NOT MODIFY THIS FILE.
+// See AGENTS.md for architectural boundaries.
+// ============================================================================
+
 // app/lib/gibsOffscreen.ts
 import { GibsConfig } from './datasets';
 
