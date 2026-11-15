@@ -54,7 +54,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   }, []);
 
   const computeFeatures = useCallback(
-    (currentLat: number, currentLon: number) => {
+    (currentLat: number, currentLon: number, currentZoom: number) => {
       const radLat = (currentLat * Math.PI) / 180;
       const radLon = (currentLon * Math.PI) / 180;
 
@@ -81,6 +81,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         datasetId: dataset.id,
         lat: currentLat,
         lon: currentLon,
+        zoom: currentZoom,
         windowMean,
         quadrantMeans,
         spatialGradient,
@@ -90,9 +91,9 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   );
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => computeFeatures(lat, lon));
+    const frame = window.requestAnimationFrame(() => computeFeatures(lat, lon, zoom));
     return () => window.cancelAnimationFrame(frame);
-  }, [lat, lon, dataset, computeFeatures]);
+  }, [lat, lon, zoom, dataset, computeFeatures]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

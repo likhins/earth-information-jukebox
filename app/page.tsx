@@ -7,9 +7,9 @@ import {
   EIC_DATASETS,
   DatasetCategory,
   ReticleFeatures,
-  SmlSonificationOutput,
+  SlmSonificationOutput,
 } from './lib/datasets';
-import { extractReticleFeaturesFromGibs, runSmlInference } from './lib/smlPipeline';
+import { extractReticleFeaturesFromGibs, requestSlmSonification } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
 import { ArrowDownRight, Layers } from 'lucide-react';
@@ -26,7 +26,7 @@ export default function PolarisDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<'All' | DatasetCategory>('All');
   const [activeDatasetId, setActiveDatasetId] = useState<string>(EIC_DATASETS[0].id);
   const [latestFeatures, setLatestFeatures] = useState<ReticleFeatures | null>(null);
-  const [sonificationOutput, setSonificationOutput] = useState<SmlSonificationOutput | null>(null);
+  const [sonificationOutput, setSonificationOutput] = useState<SlmSonificationOutput | null>(null);
   const [isInferring, setIsInferring] = useState(false);
 
   const activeDataset =
@@ -41,17 +41,21 @@ export default function PolarisDashboard() {
     if (!latestFeatures) return;
     setIsInferring(true);
     try {
-      // Sample real NASA GIBS tile pixels at the reticle's (lat, lon)
-      const gibsFeatures = await extractReticleFeaturesFromGibs(
+      const zoom = latestFeatures.zoom || 1.0;
+      // Sample real NASA GIBS tile pixels at the reticle's (lat, lon) and build SLM payload
+      const { features: gibsFeatures, slmInput } = await extractReticleFeaturesFromGibs(
         activeDataset,
         latestFeatures.lat,
-        latestFeatures.lon
+        latestFeatures.lon,
+        zoom
       );
       setLatestFeatures(gibsFeatures);
 
-      // Run SML inference on the real satellite pixel features
-      const result = await runSmlInference(activeDataset, gibsFeatures);
+      // Run SLM inference via /api/sonify with automatic fallback
+      const result = await requestSlmSonification(slmInput);
       setSonificationOutput(result);
+    } catch (err) {
+      console.error('Sonification generation error:', err);
     } finally {
       setIsInferring(false);
     }

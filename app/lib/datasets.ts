@@ -10,6 +10,13 @@ export interface GibsConfig {
   ext: 'png' | 'jpg';
 }
 
+export interface DatasetContext {
+  variable: string;
+  unit: string;
+  warm_color_meaning: string;
+  cool_color_meaning: string;
+}
+
 export interface EicDataset {
   id: string;
   name: string;
@@ -23,6 +30,7 @@ export interface EicDataset {
   textureUrl: string;
   gibs: GibsConfig;
   fallbackColors: [string, string, string];
+  context?: DatasetContext;
   hotspots: {
     id: string;
     label: string;
@@ -36,20 +44,127 @@ export interface ReticleFeatures {
   datasetId: string;
   lat: number;
   lon: number;
+  zoom?: number;
   windowMean: number;
   quadrantMeans: [number, number, number, number];
   spatialGradient: number;
 }
 
-export interface SmlSonificationOutput {
-  tempo: number;
-  scaleMode: string;
-  tension: number;
-  leadSteps: number[];
-  padChord: string[];
-  bassRoot: string;
-  pulsePattern: boolean[];
+export interface SlmSonificationInput {
+  dataset_id: string;
+  dataset_context: DatasetContext;
+  features: {
+    zoom_ratio: number;
+    zoom_class: string;
+    warm_ratio: number;
+    cool_ratio: number;
+    spatial_variance: number;
+    slices_16: number[];
+  };
+}
+
+export interface SlmSequenceStep {
+  step: number;
+  note: string;
+  velocity: number;
+  gate: string;
+  intensity: number;
+}
+
+export interface SlmMusicalParams {
+  bpm: number;
+  scale: string;
+  root_note: string;
+  pad_chord: string[];
+  oscillator: string;
+  filter_cutoff_hz: number;
+  reverb_wet: number;
+}
+
+export interface SlmSonificationOutput {
+  source: 'slm' | 'fallback' | string;
   narration: string;
+  musical_params: SlmMusicalParams;
+  sequence_16: SlmSequenceStep[];
+  // Compatibility getters/fields for older components if needed
+  tempo?: number;
+  scaleMode?: string;
+  leadSteps?: number[];
+  padChord?: string[];
+  bassRoot?: string;
+  pulsePattern?: boolean[];
+}
+
+// Backward compatibility alias
+export type SmlSonificationOutput = SlmSonificationOutput;
+
+export function getDatasetContext(dataset: EicDataset): DatasetContext {
+  if (dataset.context) return dataset.context;
+  const contextMap: Record<string, DatasetContext> = {
+    sst_anomaly: {
+      variable: 'Sea Surface Temperature and Current Velocity',
+      unit: 'degC_and_m_s',
+      warm_color_meaning: 'high-temperature tropical surface waters and fast thermal currents',
+      cool_color_meaning: 'cold polar waters and deep upwelling zones',
+    },
+    nightlights_change: {
+      variable: 'Global Nightlights & Radiant Intensity',
+      unit: 'nW/cm²/sr',
+      warm_color_meaning: 'high-density urban settlements and electrified infrastructure',
+      cool_color_meaning: 'unlit rural regions, oceans, and protected preserves',
+    },
+    co2_concentration: {
+      variable: 'Atmospheric CO₂ Mole Fraction',
+      unit: 'ppm',
+      warm_color_meaning: 'concentrated industrial greenhouse gas plumes and seasonal peaks',
+      cool_color_meaning: 'vegetative carbon sinks and clean baseline air masses',
+    },
+    sea_ice_extent: {
+      variable: 'Polar Sea Ice Concentration',
+      unit: '% conc',
+      warm_color_meaning: 'perennial multi-year sea ice pack and high reflectivity',
+      cool_color_meaning: 'open lead channels and accelerated melt zones',
+    },
+    soil_moisture: {
+      variable: 'Root-Zone Soil Moisture',
+      unit: 'm³/m³',
+      warm_color_meaning: 'saturated fertile soil horizons and flood basins',
+      cool_color_meaning: 'severe agricultural drought and arid desiccation',
+    },
+    aerosol_optical: {
+      variable: 'Aerosol Optical Depth',
+      unit: 'AOD',
+      warm_color_meaning: 'thick particulate plumes from biomass burning and mineral dust',
+      cool_color_meaning: 'pristine troposphere and clear maritime air columns',
+    },
+    chlorophyll_a: {
+      variable: 'Ocean Chlorophyll-a Biomass',
+      unit: 'mg/m³',
+      warm_color_meaning: 'dense phytoplankton blooms and high marine primary productivity',
+      cool_color_meaning: 'nutrient-depleted oligotrophic oceanic gyres',
+    },
+    land_surface_temp: {
+      variable: 'Land Surface Thermal Anomaly',
+      unit: '°C',
+      warm_color_meaning: 'severe land heatwaves and urban thermal heat islands',
+      cool_color_meaning: 'vegetation-buffered cool microclimates and highland snow',
+    },
+    greenland_mass: {
+      variable: 'Ice Sheet Gravimetric Mass Anomaly',
+      unit: 'cm w.e.',
+      warm_color_meaning: 'stable firn accumulation sectors',
+      cool_color_meaning: 'accelerated peripheral outlet glacier discharge and mass deficit',
+    },
+  };
+
+  return (
+    contextMap[dataset.id] || {
+      variable: dataset.name,
+      unit: dataset.unit,
+      warm_color_meaning: `high-value regions exceeding median ${dataset.unit}`,
+      cool_color_meaning: `low-value regions below baseline ${dataset.unit}`,
+    }
+  );
 }
 
 export const EIC_DATASETS: EicDataset[] = [
