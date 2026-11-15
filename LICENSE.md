@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Likhin S Team POLARIS
+Copyright (c) 2026 Likhin S, Team POLARIS
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
