@@ -63,7 +63,13 @@ npm run dev
 
 * **POLARIS** directly addresses "The Earth Information Jukebox" challenge by turning planetary data streams into a creative, educational, and fully accessible auditory experience.
 
-##👥 Team **POLARIS**
+---
 
-##📄 License
+## 👥 Team **POLARIS**
+
+---
+
+## 📄 License
 *Released under the MIT License. Built with 💙 for NASA Space Apps 2026*
+
+---
