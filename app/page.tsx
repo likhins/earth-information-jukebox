@@ -2,14 +2,19 @@
 'use client';
 import StarText from "./components/StarText";
 import StarHeading from "./components/StarHeading";
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   EIC_DATASETS,
   DatasetCategory,
   ReticleFeatures,
+  SlmSonificationInput,
   SlmSonificationOutput,
 } from './lib/datasets';
-import { extractReticleFeaturesFromGibs, requestSlmSonification } from './lib/smlPipeline';
+import {
+  extractReticleFeaturesFromGibs,
+  requestSlmSonification,
+  buildSlmInputPayload,
+} from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
 import { ArrowDownRight, Layers } from 'lucide-react';
@@ -27,7 +32,11 @@ export default function PolarisDashboard() {
   const [activeDatasetId, setActiveDatasetId] = useState<string>(EIC_DATASETS[0].id);
   const [latestFeatures, setLatestFeatures] = useState<ReticleFeatures | null>(null);
   const [sonificationOutput, setSonificationOutput] = useState<SlmSonificationOutput | null>(null);
+  const [activeSlmInput, setActiveSlmInput] = useState<SlmSonificationInput | null>(null);
   const [isInferring, setIsInferring] = useState(false);
+
+  const activeAbortControllerRef = useRef<AbortController | null>(null);
+  const requestCounterRef = useRef<number>(0);
 
   const activeDataset =
     EIC_DATASETS.find((d) => d.id === activeDatasetId) || EIC_DATASETS[0];
@@ -37,29 +46,73 @@ export default function PolarisDashboard() {
       ? EIC_DATASETS
       : EIC_DATASETS.filter((d) => d.category === selectedCategory);
 
+  const handleCancelTrack = useCallback(() => {
+    if (activeAbortControllerRef.current) {
+      activeAbortControllerRef.current.abort();
+      activeAbortControllerRef.current = null;
+    }
+    setIsInferring(false);
+  }, []);
+
   const handleGenerateTrack = useCallback(async () => {
-    if (!latestFeatures) return;
+    // Prevent accidental double-queueing while an SLM job is already executing
+    if (!latestFeatures || isInferring) return;
+
+    // Abort any existing in-flight SLM request to prevent race conditions
+    if (activeAbortControllerRef.current) {
+      activeAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    activeAbortControllerRef.current = controller;
+    const currentRequestId = ++requestCounterRef.current;
+
+    const zoom = latestFeatures.zoom || 1.0;
+    // Provide immediate telemetry payload so the loading screen visualizes live reticle data from millisecond 0
+    const initialPayload = buildSlmInputPayload(
+      activeDataset,
+      latestFeatures.lat,
+      latestFeatures.lon,
+      zoom
+    );
+    setActiveSlmInput(initialPayload);
     setIsInferring(true);
+
     try {
-      const zoom = latestFeatures.zoom || 1.0;
-      // Sample real NASA GIBS tile pixels at the reticle's (lat, lon) and build SLM payload
+      // 1. Sample real NASA GIBS tile pixels at the reticle's (lat, lon) and build finalized SLM payload
       const { features: gibsFeatures, slmInput } = await extractReticleFeaturesFromGibs(
         activeDataset,
         latestFeatures.lat,
         latestFeatures.lon,
         zoom
       );
-      setLatestFeatures(gibsFeatures);
 
-      // Run SLM inference via /api/sonify with automatic fallback
-      const result = await requestSlmSonification(slmInput);
-      setSonificationOutput(result);
-    } catch (err) {
-      console.error('Sonification generation error:', err);
+      // Check if this request was aborted while sampling GIBS tiles
+      if (requestCounterRef.current !== currentRequestId || controller.signal.aborted) {
+        return;
+      }
+
+      setLatestFeatures(gibsFeatures);
+      setActiveSlmInput(slmInput);
+
+      // 2. Query our hosted polaris-slm on GCP Ollama (~47 seconds inference)
+      const result = await requestSlmSonification(slmInput, controller.signal);
+
+      // Ensure this request wasn't superseded by a newer click or cancelled
+      if (requestCounterRef.current === currentRequestId && !controller.signal.aborted) {
+        setSonificationOutput(result);
+      }
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        // Silently ignore aborted request from a subsequent "Sonify region" click or manual abort
+        return;
+      }
+      console.warn('POLARIS SLM inference error/fallback:', err);
     } finally {
-      setIsInferring(false);
+      if (requestCounterRef.current === currentRequestId) {
+        setIsInferring(false);
+      }
     }
-  }, [activeDataset, latestFeatures]);
+  }, [activeDataset, latestFeatures, isInferring]);
 
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-black text-white flex flex-col selection:bg-white/20">
@@ -152,11 +205,11 @@ export default function PolarisDashboard() {
                     <Layers className="h-3.5 w-3.5" />
                   </div>
                   <div>
-                    <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/80">Data streams</h3>
-                    <p className="mt-1 font-mono text-[7px] uppercase tracking-[0.13em] text-white/30">Dataset registry</p>
+                    <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-zinc-200">Data streams</h3>
+                    <p className="mt-0.5 font-mono text-xs uppercase tracking-wider text-zinc-400">Dataset registry</p>
                   </div>
                 </div>
-                <span className="font-mono text-[9px] tabular-nums text-white/35">{String(filteredDatasets.length).padStart(2, '0')} / {String(EIC_DATASETS.length).padStart(2, '0')}</span>
+                <span className="font-mono text-xs tabular-nums text-zinc-400">{String(filteredDatasets.length).padStart(2, '0')} / {String(EIC_DATASETS.length).padStart(2, '0')}</span>
               </div>
 
               <div className="flex flex-wrap gap-1.5 border-b border-white/[0.08] px-3 py-3 lg:px-4">
@@ -165,10 +218,10 @@ export default function PolarisDashboard() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`cursor-pointer rounded-md border px-2 py-1.5 font-mono text-[7px] uppercase tracking-[0.1em] transition-colors ${
+                    className={`cursor-pointer rounded-md border px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wider transition-colors ${
                       selectedCategory === cat
-                        ? 'border-[#d77b4d]/45 bg-[#d77b4d]/[0.12] text-[#f0a078]'
-                        : 'border-transparent bg-white/[0.025] text-white/35 hover:border-white/10 hover:text-white/75'
+                        ? 'border-[#d77b4d]/60 bg-[#d77b4d]/20 text-[#f0a078]'
+                        : 'border-transparent bg-white/[0.04] text-zinc-300 hover:border-white/10 hover:text-white'
                     }`}
                   >
                     {cat === 'Land & Human' ? 'Land' : cat}
@@ -186,17 +239,17 @@ export default function PolarisDashboard() {
                       role="radio"
                       aria-checked={selected}
                       onClick={() => setActiveDatasetId(ds.id)}
-                      className={`group relative flex w-full cursor-pointer items-center gap-3 rounded-lg border border-transparent border-l-2 px-2.5 py-3 text-left transition-all ${
+                      className={`group relative flex w-full cursor-pointer items-center gap-3 rounded-lg border border-transparent border-l-2 px-2.5 py-2.5 text-left transition-all ${
                         selected
                           ? 'border-y-white/[0.1] border-r-white/[0.1] border-l-[#ef8450] bg-[#1a1917] text-white'
-                          : 'border-l-transparent text-white/43 hover:bg-white/[0.035] hover:text-white/85'
+                          : 'border-l-transparent text-zinc-200 hover:bg-white/[0.035] hover:text-white'
                       }`}
                     >
-                      <span className={`font-mono text-[8px] tabular-nums ${selected ? 'text-[#f0a078]' : 'text-white/22'}`}>{String(index + 1).padStart(2, '0')}</span>
+                      <span className={`font-mono text-xs tabular-nums ${selected ? 'text-[#f0a078] font-semibold' : 'text-zinc-400'}`}>{String(index + 1).padStart(2, '0')}</span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-sans text-[11px] font-medium tracking-[-0.01em]">{ds.name}</span>
-                        <span className="mt-1 block font-mono text-[8px] tracking-[0.07em] text-white/30">
-                          {ds.shortCode}<span className="px-1.5 text-white/15">/</span>{ds.unit}
+                        <span className={`block truncate font-sans text-sm ${selected ? 'font-semibold text-white' : 'font-medium text-zinc-200 group-hover:text-white'}`}>{ds.name}</span>
+                        <span className="mt-0.5 block font-mono text-xs tracking-wider text-zinc-400">
+                          {ds.shortCode}<span className="px-1.5 text-zinc-500">/</span>{ds.unit}
                         </span>
                       </span>
                       <span className="h-2 w-2 shrink-0 rounded-full shadow-[0_0_9px_currentColor]" style={{ backgroundColor: ds.fallbackColors[2], color: ds.fallbackColors[2] }} />
@@ -218,15 +271,17 @@ export default function PolarisDashboard() {
               <div id="sonic-studio" className="shrink-0 scroll-mt-6">
                 <div className="mb-1 flex items-center justify-between">
                   <div>
-                    <p className="mb-0.5 font-mono text-[7px] uppercase tracking-[0.22em] text-[#e58a56]">02 / Signal synthesis</p>
-                    <h3 className="font-sans text-[15px] font-medium tracking-[-0.025em] text-white/90">Sonic studio</h3>
+                    <p className="mb-0.5 font-mono text-xs uppercase tracking-wider text-[#e58a56] font-medium">02 / Signal synthesis</p>
+                    <h3 className="font-sans text-[15px] font-semibold tracking-[-0.025em] text-white">Sonic studio</h3>
                   </div>
-                  <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-white/30">Instrument output</span>
+                  <span className="font-mono text-xs uppercase tracking-wider text-zinc-400">Instrument output</span>
                 </div>
                 <SonificationWorkstation
                   output={sonificationOutput}
                   onGenerate={handleGenerateTrack}
+                  onCancel={handleCancelTrack}
                   isInferring={isInferring}
+                  activeInput={activeSlmInput}
                 />
               </div>
             </div>

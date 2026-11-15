@@ -247,12 +247,14 @@ export function buildProceduralFallback(payload: SlmSonificationInput): SlmSonif
  * which handles the Ollama connection with 60s timeout and returns the parsed SLM output.
  */
 export async function requestSlmSonification(
-  payload: SlmSonificationInput
+  payload: SlmSonificationInput,
+  signal?: AbortSignal
 ): Promise<SlmSonificationOutput> {
   const res = await fetch('/api/sonify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    signal,
   });
 
   if (!res.ok) {

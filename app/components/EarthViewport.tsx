@@ -252,19 +252,19 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       </div>
 
       {/* Dataset identity */}
-      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5 rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.15em] backdrop-blur-md sm:left-6 sm:top-5">
-        <Crosshair className="h-3 w-3 text-white/65" />
-        <span className="text-white/85">{dataset.shortCode}</span>
-        <span className="text-white/25">/</span>
-        <span className="max-w-[42vw] truncate text-white/50">{dataset.name}</span>
+      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5 rounded-md border border-white/15 bg-black/75 px-3 py-1.5 font-mono text-xs sm:text-sm font-medium text-slate-100 uppercase tracking-wider backdrop-blur-md sm:left-6 sm:top-5">
+        <Crosshair className="h-3.5 w-3.5 text-zinc-300" />
+        <span className="text-white font-semibold">{dataset.shortCode}</span>
+        <span className="text-zinc-500">/</span>
+        <span className="max-w-[42vw] truncate text-zinc-300">{dataset.name}</span>
       </div>
 
       {/* Coordinate and live value readout */}
-      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] tracking-[0.1em] text-white/65 backdrop-blur-md sm:block sm:right-6 sm:top-5">
+      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden rounded-md border border-white/15 bg-black/75 px-3 py-1.5 font-mono text-xs sm:text-sm font-medium text-slate-100 backdrop-blur-md sm:block sm:right-6 sm:top-5">
         {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}&nbsp;&nbsp;
         {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
-        <span className="mx-3 text-white/20">/</span>
-        <span className="text-[#f0a078]">{liveVal.toFixed(2)} {dataset.unit}</span>
+        <span className="mx-2.5 text-zinc-500">/</span>
+        <span className="text-orange-400 font-semibold">{liveVal.toFixed(2)} {dataset.unit}</span>
       </div>
 
       {/* Sampling reticle */}
@@ -277,26 +277,26 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         <span className="absolute bottom-0 left-0 h-3.5 w-3.5 border-b border-l border-white/70" />
         <span className="absolute bottom-0 right-0 h-3.5 w-3.5 border-b border-r border-white/70" />
         <span className="h-1 w-1 rounded-full bg-white/90" />
-        <span className="absolute -bottom-5 font-mono text-[8px] uppercase tracking-[0.2em] text-white/45">256×256 ROI</span>
+        <span className="absolute -bottom-5 font-mono text-xs uppercase tracking-wider text-zinc-400 font-medium">256×256 ROI</span>
       </div>
 
       {/* Zoom controls */}
-      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl border border-white/[0.14] bg-[#111313]/90 p-1.5 font-mono text-[9px] text-white/70 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:right-6">
+      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl border border-white/[0.14] bg-[#111313]/90 p-1.5 font-mono text-xs text-zinc-200 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:right-6">
         <button
           type="button"
           onClick={() => setZoom((z) => Math.min(4.5, +(z + 0.25).toFixed(2)))}
           aria-label="Zoom in"
-          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
-          <ZoomIn className="h-3.5 w-3.5" />
+          <ZoomIn className="h-4 w-4" />
         </button>
-        <span className="py-0.5 text-white/80">{zoom.toFixed(1)}×</span>
+        <span className="py-0.5 font-semibold text-white">{zoom.toFixed(1)}×</span>
         <button
           type="button"
           onClick={() => setZoom(1.0)}
           aria-label="Fit globe to view"
           title="Fit globe to view"
-          className="cursor-pointer rounded-lg px-2 py-1 font-mono text-[7px] tracking-[0.12em] text-white/45 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          className="cursor-pointer rounded-lg px-2 py-1 font-mono text-xs font-semibold tracking-wider text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
           FIT
         </button>
@@ -304,26 +304,26 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
           type="button"
           onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
           aria-label="Zoom out"
-          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
-          <ZoomOut className="h-3.5 w-3.5" />
+          <ZoomOut className="h-4 w-4" />
         </button>
       </div>
 
       {/* Color scale and geographic presets */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.13] bg-[#090a0a]/92 px-4 py-3.5 font-mono text-[8px] tracking-[0.08em] backdrop-blur-xl sm:px-6">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.13] bg-[#090a0a]/92 px-4 py-3.5 font-mono backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-2.5">
-          <span className="text-white/45">{dataset.minVal}</span>
+          <span className="text-xs text-zinc-300 font-mono font-medium">{dataset.minVal}</span>
           <div
             role="img"
             aria-label={`Color scale from ${dataset.minVal} to ${dataset.maxVal} ${dataset.unit}`}
-            className="h-1.5 w-24 overflow-hidden rounded-full"
+            className="h-2 w-28 overflow-hidden rounded-full border border-white/10"
             style={{ background: dataset.colorGradient }}
           />
-          <span className="text-white/45">{dataset.maxVal} {dataset.unit}</span>
+          <span className="text-xs text-zinc-300 font-mono font-medium">{dataset.maxVal} {dataset.unit}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {dataset.hotspots.map((spot) => (
             <button
               key={spot.id}
@@ -332,9 +332,9 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
                 setLat(spot.lat);
                 setLon(spot.lon);
               }}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.035] px-2.5 py-1.5 text-white/48 transition-colors hover:border-[#e7824d]/45 hover:bg-[#e7824d]/[0.08] hover:text-[#f0a078]"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:border-orange-500/50 hover:bg-orange-500/10 hover:text-white"
             >
-              <MapPin className="h-3 w-3" />
+              <MapPin className="h-3.5 w-3.5 text-orange-400" />
               {spot.label}
             </button>
           ))}

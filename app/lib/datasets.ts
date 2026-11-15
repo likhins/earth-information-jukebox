@@ -86,6 +86,7 @@ export interface SlmSonificationOutput {
   narration: string;
   musical_params: SlmMusicalParams;
   sequence_16: SlmSequenceStep[];
+  fallback_reason?: string;
   // Compatibility getters/fields for older components if needed
   tempo?: number;
   scaleMode?: string;
