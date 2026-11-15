@@ -16,7 +16,7 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   const [canvasSize, setCanvasSize] = useState({ width: 900, height: 520 });
   const [lat, setLat] = useState<number>(12.0);
   const [lon, setLon] = useState<number>(45.0);
-  const [zoom, setZoom] = useState<number>(1.25);
+  const [zoom, setZoom] = useState<number>(1.0);
   const [liveVal, setLiveVal] = useState<number>(0);
 
   const isDragging = useRef(false);
@@ -108,32 +108,33 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
     ctx.scale(dpr, dpr);
 
     const cx = width / 2;
-    const cy = height / 2;
-    const radius = Math.min(width, height) * 0.43 * zoom;
+    // Bias the globe upward to keep its lower edge clear of the fixed color-scale rail.
+    const cy = height * 0.47;
+    const radius = Math.min(width * 0.46, height * 0.46) * zoom;
 
     ctx.clearRect(0, 0, width, height);
 
-    // Subtle procedural starfield instead of harsh grid lines
-    ctx.fillStyle = 'rgba(226, 232, 240, 0.25)';
+    // Restrained starfield to connect the workspace to the landing hero.
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     for (let s = 0; s < 55; s++) {
       const sx = ((s * 197) % width);
       const sy = ((s * 313) % height);
-      const r = s % 3 === 0 ? 1.2 : 0.7;
+      const r = s % 3 === 0 ? 1.1 : 0.65;
       ctx.beginPath();
       ctx.arc(sx, sy, r, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Soft atmospheric halo
+    // Faint atmospheric edge; the data field itself remains dataset-driven.
     const halo = ctx.createRadialGradient(cx, cy, radius * 0.88, cx, cy, radius * 1.22);
-    halo.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
-    halo.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    halo.addColorStop(0, 'rgba(255, 255, 255, 0.055)');
+    halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = halo;
     ctx.beginPath();
     ctx.arc(cx, cy, radius * 1.22, 0, Math.PI * 2);
     ctx.fill();
 
-    // Globe Sphere
+    // Globe sphere — dataset colors and all sampling geometry are preserved.
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -153,10 +154,10 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
     ctx.fillStyle = sphereGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // Organic geospatial thermal/data waves
     const lonRad = (lon * Math.PI) / 180;
     const latRad = (lat * Math.PI) / 180;
 
+    // Organic data contours.
     for (let i = -5; i <= 5; i++) {
       const bandY = cy + (i / 5) * radius * 0.85 + Math.sin(latRad) * (radius * 0.14);
       ctx.beginPath();
@@ -168,14 +169,14 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         if (x <= Math.max(0, cx - radius) + 8) ctx.moveTo(x, bandY + wave);
         else ctx.lineTo(x, bandY + wave);
       }
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.105)';
+      ctx.lineWidth = 1.15;
       ctx.stroke();
     }
 
-    // Ultra-subtle graticules
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-    ctx.lineWidth = 1;
+    // Subtle geographic graticules.
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.065)';
+    ctx.lineWidth = 0.85;
     for (let g = -2; g <= 2; g++) {
       ctx.beginPath();
       ctx.ellipse(cx, cy, radius * Math.cos((g * Math.PI) / 6), radius, 0, 0, Math.PI * 2);
@@ -185,20 +186,18 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
       ctx.stroke();
     }
 
-    // Inner limb shadow for 3D depth
     const innerShadow = ctx.createRadialGradient(cx, cy, radius * 0.72, cx, cy, radius);
-    innerShadow.addColorStop(0, 'rgba(2, 6, 23, 0)');
-    innerShadow.addColorStop(1, 'rgba(2, 6, 23, 0.55)');
+    innerShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    innerShadow.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
     ctx.fillStyle = innerShadow;
     ctx.fillRect(0, 0, width, height);
 
     ctx.restore();
 
-    // Crisp thin rim highlight
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(125, 211, 252, 0.28)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+    ctx.lineWidth = 0.9;
     ctx.stroke();
   }, [dataset, lat, lon, zoom, canvasSize]);
 
@@ -234,9 +233,8 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
   return (
     <section
       aria-label="Earth visualization viewport"
-      className="relative w-full h-full bg-[#020617] border border-white/[0.07] rounded-2xl overflow-hidden select-none"
+      className="polaris-instrument-surface relative h-full w-full select-none overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#080909] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
     >
-      {/* Full-Bleed Canvas */}
       <div
         ref={containerRef}
         tabIndex={0}
@@ -247,83 +245,84 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing focus:outline-none"
+        className="absolute inset-0 h-full w-full cursor-grab touch-none focus:outline-none active:cursor-grabbing"
       >
-        <canvas ref={canvasRef} className="block w-full h-full" />
+        <canvas ref={canvasRef} className="block h-full w-full" />
       </div>
 
-      {/* Floating Top-Left Dataset Pill */}
-      <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-950/65 backdrop-blur-md border border-white/10 font-mono text-xs">
-        <Crosshair className="h-3.5 w-3.5 text-sky-400" />
-        <span className="text-sky-400 font-semibold">{dataset.shortCode}</span>
-        <span className="text-slate-600">·</span>
-        <span className="text-slate-200">{dataset.name}</span>
+      {/* Dataset identity */}
+      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5 rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.15em] backdrop-blur-md sm:left-6 sm:top-5">
+        <Crosshair className="h-3 w-3 text-white/65" />
+        <span className="text-white/85">{dataset.shortCode}</span>
+        <span className="text-white/25">/</span>
+        <span className="max-w-[42vw] truncate text-white/50">{dataset.name}</span>
       </div>
 
-      {/* Floating Top-Right Telemetry Pill */}
-      <div className="pointer-events-none absolute top-3.5 right-3.5 z-10 hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-950/65 backdrop-blur-md border border-white/10 font-mono text-xs">
-        <span className="text-slate-400">
-          {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}{' '}
-          {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
-        </span>
-        <span className="text-slate-700">|</span>
-        <span className="text-sky-300 font-semibold">
-          {liveVal.toFixed(2)} {dataset.unit}
-        </span>
+      {/* Coordinate and live value readout */}
+      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden rounded-full border border-white/[0.13] bg-[#090a0a]/75 px-3 py-2 font-mono text-[8px] tracking-[0.1em] text-white/65 backdrop-blur-md sm:block sm:right-6 sm:top-5">
+        {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}&nbsp;&nbsp;
+        {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
+        <span className="mx-3 text-white/20">/</span>
+        <span className="text-[#f0a078]">{liveVal.toFixed(2)} {dataset.unit}</span>
       </div>
 
-      {/* Minimalist Corner-Bracket Sampling Reticle */}
+      {/* Sampling reticle */}
       <div
         aria-hidden="true"
-        className="pointer-events-none z-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 flex items-center justify-center"
+        className="pointer-events-none absolute left-1/2 top-[45%] z-10 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       >
-        <span className="absolute top-0 left-0 w-3.5 h-3.5 border-t border-l border-sky-400/80" />
-        <span className="absolute top-0 right-0 w-3.5 h-3.5 border-t border-r border-sky-400/80" />
-        <span className="absolute bottom-0 left-0 w-3.5 h-3.5 border-b border-l border-sky-400/80" />
-        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b border-r border-sky-400/80" />
-        <span className="w-1.5 h-1.5 rounded-full bg-sky-400/90 shadow-[0_0_10px_#38bdf8]" />
-        <span className="absolute -bottom-5 text-[9px] font-mono tracking-widest uppercase text-sky-300/70">
-          256×256 ROI
-        </span>
+        <span className="absolute left-0 top-0 h-3.5 w-3.5 border-l border-t border-white/70" />
+        <span className="absolute right-0 top-0 h-3.5 w-3.5 border-r border-t border-white/70" />
+        <span className="absolute bottom-0 left-0 h-3.5 w-3.5 border-b border-l border-white/70" />
+        <span className="absolute bottom-0 right-0 h-3.5 w-3.5 border-b border-r border-white/70" />
+        <span className="h-1 w-1 rounded-full bg-white/90" />
+        <span className="absolute -bottom-5 font-mono text-[8px] uppercase tracking-[0.2em] text-white/45">256×256 ROI</span>
       </div>
 
-      {/* Floating Zoom Pill */}
-      <div className="z-10 absolute right-3.5 bottom-14 flex flex-col items-center gap-1 bg-slate-950/70 backdrop-blur-md border border-white/10 rounded-full p-1 font-mono text-[10px]">
+      {/* Zoom controls */}
+      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl border border-white/[0.14] bg-[#111313]/90 p-1.5 font-mono text-[9px] text-white/70 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:right-6">
         <button
           type="button"
           onClick={() => setZoom((z) => Math.min(4.5, +(z + 0.25).toFixed(2)))}
           aria-label="Zoom in"
-          className="p-1.5 hover:bg-white/10 rounded-full text-slate-300 hover:text-white cursor-pointer"
+          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
-          <ZoomIn className="w-3.5 h-3.5" />
+          <ZoomIn className="h-3.5 w-3.5" />
         </button>
-        <span className="text-sky-400 font-semibold py-0.5">{zoom.toFixed(1)}×</span>
+        <span className="py-0.5 text-white/80">{zoom.toFixed(1)}×</span>
+        <button
+          type="button"
+          onClick={() => setZoom(1.0)}
+          aria-label="Fit globe to view"
+          title="Fit globe to view"
+          className="cursor-pointer rounded-lg px-2 py-1 font-mono text-[7px] tracking-[0.12em] text-white/45 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+        >
+          FIT
+        </button>
         <button
           type="button"
           onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
           aria-label="Zoom out"
-          className="p-1.5 hover:bg-white/10 rounded-full text-slate-300 hover:text-white cursor-pointer"
+          className="cursor-pointer rounded-xl p-2 text-white/50 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
         >
-          <ZoomOut className="w-3.5 h-3.5" />
+          <ZoomOut className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      {/* Floating Bottom Legend & Presets */}
-      <div className="z-10 absolute bottom-3 inset-x-3.5 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-2xl sm:rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-[11px] font-mono">
+      {/* Color scale and geographic presets */}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.13] bg-[#090a0a]/92 px-4 py-3.5 font-mono text-[8px] tracking-[0.08em] backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-2.5">
-          <span className="text-slate-400">{dataset.minVal}</span>
+          <span className="text-white/45">{dataset.minVal}</span>
           <div
             role="img"
             aria-label={`Color scale from ${dataset.minVal} to ${dataset.maxVal} ${dataset.unit}`}
-            className="w-28 h-2 rounded-full"
+            className="h-1.5 w-24 overflow-hidden rounded-full"
             style={{ background: dataset.colorGradient }}
           />
-          <span className="text-slate-400">
-            {dataset.maxVal} {dataset.unit}
-          </span>
+          <span className="text-white/45">{dataset.maxVal} {dataset.unit}</span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {dataset.hotspots.map((spot) => (
             <button
               key={spot.id}
@@ -332,9 +331,9 @@ export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewport
                 setLat(spot.lat);
                 setLon(spot.lon);
               }}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/[0.04] hover:bg-sky-500/20 border border-white/10 hover:border-sky-400/50 text-slate-200 transition cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.035] px-2.5 py-1.5 text-white/48 transition-colors hover:border-[#e7824d]/45 hover:bg-[#e7824d]/[0.08] hover:text-[#f0a078]"
             >
-              <MapPin className="w-3 h-3 text-sky-400" />
+              <MapPin className="h-3 w-3" />
               {spot.label}
             </button>
           ))}

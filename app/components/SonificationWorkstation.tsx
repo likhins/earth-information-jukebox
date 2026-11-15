@@ -98,33 +98,37 @@ export default function SonificationWorkstation({
   return (
     <section
       aria-label="Sonification workstation"
-      className="shrink-0 bg-slate-950/80 backdrop-blur-xl border border-white/[0.07] rounded-2xl p-3.5 font-mono"
+      className="overflow-hidden rounded-[14px] border border-[#2a2c2b] bg-[#0c0d0d] px-3 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_16px_42px_rgba(0,0,0,0.22)] sm:px-4 sm:py-3"
     >
-      <div className="mb-3 flex items-center justify-between gap-3 px-0.5">
-        <div className="flex items-center gap-2 text-[10px] tracking-[0.16em] uppercase text-slate-400">
-          <AudioLines className="h-3.5 w-3.5 text-sky-400" /> Sonic studio
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.11] pb-2">
+        <div className="flex items-center gap-3 text-[9px] uppercase tracking-[0.22em] text-white/55">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border border-[#e7824d]/25 bg-[#e7824d]/[0.09] text-[#f0a078]"><AudioLines className="h-3.5 w-3.5" /></span>
+          Signal processor
+          <span className="text-white/20">/</span>
+          <span className="text-white/30">16-step sequence</span>
         </div>
-        <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase ${
-          isInferring ? 'text-amber-300' : output ? 'text-emerald-300' : 'text-slate-500'
+        <span className={`inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.025] px-2.5 py-1.5 text-[7px] uppercase tracking-[0.15em] ${
+          isInferring ? 'text-white/75' : output ? 'text-white/75' : 'text-white/30'
         }`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${
-            isInferring ? 'bg-amber-400 animate-pulse' : output ? 'bg-emerald-400' : 'bg-slate-600'
+          <span className={`h-1 w-1 rounded-full ${
+            isInferring ? 'bg-white animate-pulse' : output ? 'bg-white' : 'bg-white/25'
           }`} />
           {isInferring ? 'Mapping signal' : output ? 'Sequence ready' : 'Awaiting sample'}
         </span>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr] gap-4 items-center">
-        {/* Left: Transport & Telemetry */}
-        <div className="flex flex-col justify-between gap-2.5">
-          <div className="flex items-center gap-2">
+
+      <div className="grid grid-cols-1 items-stretch gap-2 xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-3">
+        {/* Transport and signal readout */}
+        <div className="flex flex-col justify-between gap-2 rounded-[10px] border border-white/[0.09] bg-[#121414] p-3">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onGenerate}
               disabled={isInferring}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition cursor-pointer shadow-[0_0_20px_rgba(56,189,248,0.25)]"
+              className="inline-flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#f69a68]/35 bg-[#e87943] px-3 py-1.5 text-[8px] font-semibold uppercase tracking-[0.13em] text-[#1d0e08] shadow-[0_5px_18px_rgba(232,121,67,0.12)] transition-colors hover:bg-[#f28a53] disabled:cursor-wait disabled:opacity-45"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              {isInferring ? 'Mapping...' : 'Sonify Region'}
+              <Sparkles className="h-3.5 w-3.5" />
+              {isInferring ? 'Mapping...' : 'Sonify region'}
             </button>
 
             <button
@@ -132,56 +136,56 @@ export default function SonificationWorkstation({
               onClick={togglePlay}
               disabled={!output}
               aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
-              className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer ${
+              className={`inline-flex min-h-9 min-w-[70px] cursor-pointer items-center justify-center gap-2 rounded-md border px-2.5 text-[8px] uppercase tracking-[0.1em] transition-colors disabled:cursor-not-allowed disabled:opacity-25 ${
                 isPlaying
-                  ? 'bg-rose-500/20 border-rose-500/50 text-rose-300'
-                  : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 disabled:opacity-35'
+                  ? 'border-[#f08b58]/60 bg-[#f08b58] text-[#1d0e08]'
+                  : 'border-white/[0.16] bg-[#090a0a] text-white/65 hover:border-white/35 hover:text-white'
               }`}
             >
-              {isPlaying ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+              {isPlaying ? <Square className="h-3 w-3" /> : <Play className="h-3 w-3" />}
               {isPlaying ? 'Stop' : 'Play'}
             </button>
           </div>
 
-          {/* Compact Inline Metrics */}
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px]">
-            <span className="text-slate-400">
-              BPM <strong className="text-white">{output ? output.tempo : '—'}</strong>
-            </span>
-            <span className="text-slate-700">|</span>
-            <span className="text-slate-400">
-              MODE <strong className="text-sky-300">{output ? output.scaleMode : '—'}</strong>
-            </span>
-            <span className="text-slate-700">|</span>
-            <span className="text-emerald-400 uppercase text-[10px]">
-              {isPlaying ? 'Live' : output ? 'Ready' : 'Idle'}
-            </span>
+          <div className="grid grid-cols-3 border-y border-white/[0.1] py-2">
+            <div>
+              <span className="block text-[8px] uppercase tracking-[0.16em] text-white/30">Tempo</span>
+              <strong className="mt-1 block text-[12px] font-normal text-white/85">{output ? output.tempo : '—'} <span className="text-[8px] text-white/35">BPM</span></strong>
+            </div>
+            <div className="border-l border-white/[0.1] pl-3">
+              <span className="block text-[8px] uppercase tracking-[0.16em] text-white/30">Mode</span>
+              <strong className="mt-1 block truncate text-[11px] font-normal text-white/85">{output ? output.scaleMode : '—'}</strong>
+            </div>
+            <div className="border-l border-white/[0.1] pl-3">
+              <span className="block text-[8px] uppercase tracking-[0.16em] text-white/30">State</span>
+              <strong className="mt-1 block text-[10px] font-normal uppercase text-white/65">{isPlaying ? 'Live' : output ? 'Ready' : 'Idle'}</strong>
+            </div>
           </div>
         </div>
 
-        {/* Right: Slim 16-Step Matrix + Narration */}
-        <div className="flex flex-col gap-2 min-w-0">
-          <div className="space-y-1">
+        {/* Four-lane sequence matrix */}
+        <div className="flex min-w-0 flex-col gap-2 overflow-x-auto polaris-sequencer-scroll">
+          <div className="min-w-0 space-y-2 rounded-[10px] border border-white/[0.1] bg-[#080909] p-3">
             {[
-              { name: 'LEAD', active: (i: number) => (output?.leadSteps[i] ?? -1) >= 0, color: 'bg-sky-400' },
-              { name: 'PAD', active: (i: number) => Boolean(output && (i === 0 || i === 8)), color: 'bg-indigo-400' },
-              { name: 'BASS', active: (i: number) => Boolean(output && i % 4 === 0), color: 'bg-emerald-400' },
-              { name: 'PULSE', active: (i: number) => Boolean(output?.pulsePattern[i]), color: 'bg-amber-400' },
+              { name: 'LEAD', active: (i: number) => (output?.leadSteps[i] ?? -1) >= 0, color: 'bg-[#f18a51]' },
+              { name: 'PAD', active: (i: number) => Boolean(output && (i === 0 || i === 8)), color: 'bg-[#d4d0c8]' },
+              { name: 'BASS', active: (i: number) => Boolean(output && i % 4 === 0), color: 'bg-[#78aaa0]' },
+              { name: 'PULSE', active: (i: number) => Boolean(output?.pulsePattern[i]), color: 'bg-[#9695d5]' },
             ].map((stem) => (
               <div
                 key={stem.name}
-                className="grid grid-cols-[46px_repeat(16,minmax(0,1fr))] gap-1 items-center"
+                className="grid min-w-[480px] grid-cols-[42px_repeat(16,minmax(0,1fr))] items-center gap-1"
               >
-                <span className="text-[9px] tracking-wider text-slate-500">{stem.name}</span>
+                <span className="text-[8px] tracking-[0.14em] text-white/35">{stem.name}</span>
                 {Array.from({ length: 16 }, (_, i) => {
                   const isOn = stem.active(i);
                   const isCurrent = currentStep === i;
                   return (
                     <div
                       key={i}
-                      className={`h-2.5 rounded-[3px] transition-all ${
-                        isOn ? stem.color : 'bg-white/[0.05]'
-                      } ${isCurrent ? 'ring-1 ring-white brightness-125 scale-y-125' : ''}`}
+                      className={`h-3 rounded-[2px] transition-all duration-100 ${
+                        isOn ? stem.color : 'bg-white/[0.055]'
+                      } ${isCurrent ? 'outline outline-1 outline-[#f18a51] outline-offset-2 shadow-[0_0_10px_rgba(241,138,81,0.35)]' : ''}`}
                     />
                   );
                 })}
@@ -189,10 +193,9 @@ export default function SonificationWorkstation({
             ))}
           </div>
 
-          {/* Single-Line Live Scientific Narration */}
           <p
             aria-live="polite"
-            className="text-[11px] text-slate-400 font-sans sm:truncate pt-1 border-t border-white/[0.06]"
+            className="border-t border-white/[0.1] pt-2 font-sans text-[9px] leading-4 text-white/48"
           >
             {output
               ? output.narration
