@@ -8,7 +8,7 @@ import {
   ReticleFeatures,
   SmlSonificationOutput,
 } from './lib/datasets';
-import { runSmlInference } from './lib/smlPipeline';
+import { extractReticleFeaturesFromGibs, runSmlInference } from './lib/smlPipeline';
 import EarthViewport from './components/EarthViewport';
 import SonificationWorkstation from './components/SonificationWorkstation';
 import { Activity, ArrowDown, ArrowRight, Globe2, Layers, ScanLine, Waves } from 'lucide-react';
@@ -44,11 +44,20 @@ export default function PolarisDashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleGenerateTrack = useCallback(async () => {
+const handleGenerateTrack = useCallback(async () => {
     if (!latestFeatures) return;
     setIsInferring(true);
     try {
-      const result = await runSmlInference(activeDataset, latestFeatures);
+      // Sample real NASA GIBS tile pixels at the reticle's (lat, lon)
+      const gibsFeatures = await extractReticleFeaturesFromGibs(
+        activeDataset,
+        latestFeatures.lat,
+        latestFeatures.lon
+      );
+      setLatestFeatures(gibsFeatures);
+
+      // Run SML inference on the real satellite pixel features
+      const result = await runSmlInference(activeDataset, gibsFeatures);
       setSonificationOutput(result);
     } finally {
       setIsInferring(false);

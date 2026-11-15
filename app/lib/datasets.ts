@@ -2,6 +2,14 @@
 
 export type DatasetCategory = 'Atmosphere' | 'Oceans' | 'Cryosphere' | 'Land & Human';
 
+export interface GibsConfig {
+  layerId: string;
+  matrixSet: string;
+  date: string;
+  zoom: number; // Safe zoom <= matrixSet max level
+  ext: 'png' | 'jpg';
+}
+
 export interface EicDataset {
   id: string;
   name: string;
@@ -12,9 +20,8 @@ export interface EicDataset {
   maxVal: number;
   colorGradient: string;
   description: string;
-  /** External CDN URL (e.g., Cloudflare R2 or GitHub Release) — never store raw heavy maps in Git */
   textureUrl: string;
-  /** Fallback procedural palette colors for instant offline rendering before CDN texture loads */
+  gibs: GibsConfig;
   fallbackColors: [string, string, string];
   hotspots: {
     id: string;
@@ -37,11 +44,11 @@ export interface ReticleFeatures {
 export interface SmlSonificationOutput {
   tempo: number;
   scaleMode: string;
-  tension: number; // 0 to 1
-  leadSteps: number[]; // 16 MIDI/scale degrees (-1 = rest)
+  tension: number;
+  leadSteps: number[];
   padChord: string[];
   bassRoot: string;
-  pulsePattern: boolean[]; // 16 steps
+  pulsePattern: boolean[];
   narration: string;
 }
 
@@ -56,7 +63,14 @@ export const EIC_DATASETS: EicDataset[] = [
     maxVal: 3,
     colorGradient: 'linear-gradient(90deg, #1d4ed8, #e2e8f0, #dc2626)',
     description: 'Departure of ocean surface temperature from long-term climatological baseline.',
-    textureUrl: '', // Plug external CDN WebP URL here
+    textureUrl: '',
+    gibs: {
+      layerId: 'GHRSST_L4_MUR_Sea_Surface_Temperature_Anomalies',
+      matrixSet: 'GoogleMapsCompatible_Level7',
+      date: '2025-10-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#0f294a', '#1e40af', '#ef4444'],
     hotspots: [
       { id: 'enso', label: 'El Niño Pacific Tongue', lat: -2.5, lon: -120.0, summary: 'Strong positive thermal anomaly driving harmonic tension.' },
@@ -74,6 +88,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #020617, #f59e0b, #fef08a)',
     description: 'Human settlement intensity and multi-year urban/infrastructure radiance shifts.',
     textureUrl: '',
+    gibs: {
+      layerId: 'VIIRS_Black_Marble',
+      matrixSet: 'GoogleMapsCompatible_Level8',
+      date: '2016-01-01', // Static composite layer date
+      zoom: 5,
+      ext: 'png',
+    },
     fallbackColors: ['#050814', '#b45309', '#fde047'],
     hotspots: [
       { id: 'indo_gangetic', label: 'Indo-Gangetic Plain', lat: 26.8, lon: 80.9, summary: 'Dense urban corridor producing rapid melodic arpeggios.' },
@@ -91,6 +112,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #065f46, #facc15, #991b1b)',
     description: 'Column-averaged dry air mole fraction of carbon dioxide across hemispheres.',
     textureUrl: '',
+    gibs: {
+    layerId: 'AIRS_L2_Carbon_Monoxide_500hPa_Volume_Mixing_Ratio_Day',
+    matrixSet: 'GoogleMapsCompatible_Level6',
+    date: '2025-10-15',
+    zoom: 3,
+    ext: 'png',
+  },
     fallbackColors: ['#064e3b', '#eab308', '#991b1b'],
     hotspots: [
       { id: 'east_asia', label: 'East Asian Industrial Belt', lat: 35.0, lon: 114.0, summary: 'High seasonal emission plume elevating tempo and chord density.' },
@@ -107,6 +135,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #0c4a6e, #38bdf8, #f8fafc)',
     description: 'Polar sea ice concentration and seasonal melt boundary dynamics.',
     textureUrl: '',
+    gibs: {
+      layerId: 'GHRSST_L4_MUR_Sea_Ice_Concentration',
+      matrixSet: 'GoogleMapsCompatible_Level7',
+      date: '2025-10-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#082f49', '#0284c7', '#f8fafc'],
     hotspots: [
       { id: 'beaufort', label: 'Beaufort Sea Margin', lat: 73.5, lon: -145.0, summary: 'Fractured ice edge triggering high-contrast percussive pulses.' },
@@ -123,6 +158,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #78350f, #ca8a04, #0284c7)',
     description: 'Surface and root-zone water availability tracking drought and flood anomalies.',
     textureUrl: '',
+    gibs: {
+      layerId: 'SMAP_L4_Analyzed_Root_Zone_Soil_Moisture',
+      matrixSet: 'GoogleMapsCompatible_Level6',
+      date: '2024-06-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#451a03', '#ca8a04', '#0369a1'],
     hotspots: [
       { id: 'amazon', label: 'Amazon Basin Drought Zone', lat: -6.0, lon: -62.0, summary: 'Severe moisture deficit shifting harmony into Dorian minor.' },
@@ -139,6 +181,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #0f172a, #a855f7, #fb923c)',
     description: 'Atmospheric dust, wildfire smoke, and sulfate particulate density.',
     textureUrl: '',
+    gibs: {
+      layerId: 'OMPS_Aerosol_Index',
+      matrixSet: 'GoogleMapsCompatible_Level6',
+      date: '2025-10-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#0f172a', '#7e22ce', '#f97316'],
     hotspots: [
       { id: 'sahara_plume', label: 'Saharan Dust Plume', lat: 16.5, lon: -22.0, summary: 'Trans-Atlantic mineral plume creating sweeping pad modulation.' },
@@ -155,6 +204,14 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #1e1b4b, #0d9488, #84cc16)',
     description: 'Phytoplankton bloom density indicating marine primary productivity.',
     textureUrl: '',
+    // In chlorophyll_a
+  gibs: {
+    layerId: 'OCI_PACE_Chlorophyll_a',
+    matrixSet: 'GoogleMapsCompatible_Level7',
+    date: '2026-11-14',
+    zoom: 4,
+    ext: 'png',
+  },
     fallbackColors: ['#1e1b4b', '#0f766e', '#65a30d'],
     hotspots: [
       { id: 'humboldt', label: 'Humboldt Upwelling', lat: -14.0, lon: -78.0, summary: 'Nutrient-rich bloom generating bright Lydian lead intervals.' },
@@ -171,6 +228,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #2563eb, #f1f5f9, #e11d48)',
     description: 'Thermal skin temperature anomalies highlighting heatwaves and urban heat islands.',
     textureUrl: '',
+    gibs: {
+      layerId: 'MODIS_Terra_Land_Surface_Temp_Day',
+      matrixSet: 'GoogleMapsCompatible_Level7',
+      date: '2025-10-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#1d4ed8', '#94a3b8', '#e11d48'],
     hotspots: [
       { id: 'mediterranean', label: 'Mediterranean Heat Dome', lat: 39.0, lon: 15.0, summary: 'Extreme positive thermal anomaly accelerating sequencer pulse.' },
@@ -187,6 +251,13 @@ export const EIC_DATASETS: EicDataset[] = [
     colorGradient: 'linear-gradient(90deg, #be123c, #f43f5e, #38bdf8)',
     description: 'Gravimetric ice mass loss across Greenland and West Antarctica.',
     textureUrl: '',
+    gibs: {
+      layerId: 'MODIS_Terra_NDSI_Snow_Cover',
+      matrixSet: 'GoogleMapsCompatible_Level8',
+      date: '2025-10-15',
+      zoom: 4,
+      ext: 'png',
+    },
     fallbackColors: ['#9f1239', '#e11d48', '#0284c7'],
     hotspots: [
       { id: 'jakobshavn', label: 'Jakobshavn Glacier', lat: 69.2, lon: -49.8, summary: 'Rapid mass loss driving deep sub-bass drone modulation.' },
