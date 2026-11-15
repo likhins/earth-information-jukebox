@@ -472,54 +472,65 @@ export default function SonificationWorkstation({
             </div>
           )}
 
-          <div className="grid grid-cols-1 items-stretch gap-2.5 xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-3">
-            {/* Transport and signal readout */}
-            <div className="flex flex-col justify-between gap-3 rounded-[10px] border border-white/[0.08] bg-[#121414] p-3">
-              <div className="flex items-center gap-2">
+          <div className="grid grid-cols-1 items-stretch gap-2.5 lg:grid-cols-[310px_minmax(0,1fr)] xl:gap-3">
+            {/* Left Control Column */}
+            <div className="flex w-full shrink-0 flex-col justify-between gap-3 border-b border-white/[0.08] p-3.5 lg:w-[310px] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+              {/* Action Buttons Row */}
+              <div className="grid grid-cols-[1.35fr_1fr] items-center gap-2.5">
                 <button
                   type="button"
                   onClick={handleSonifyClick}
                   disabled={isInferring}
-                  className="inline-flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#f69a68]/35 bg-[#e87943] px-3 py-1.5 text-xs font-semibold text-[#1d0e08] shadow-[0_4px_14px_rgba(232,121,67,0.15)] transition-colors hover:bg-[#f28a53] disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#ef8450] px-3.5 font-mono text-[11px] font-semibold tracking-wide text-black transition hover:bg-[#f59666] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {isInferring ? 'Composing...' : 'Sonify Region'}
+                  <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                  <span>{isInferring ? 'Synthesizing...' : 'Sonify Region'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={togglePlay}
                   disabled={!output}
-                  aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
-                  className={`inline-flex min-h-9 min-w-[72px] cursor-pointer items-center justify-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-25 ${
-                    isPlaying
-                      ? 'border-[#f08b58]/60 bg-[#f08b58] text-[#1d0e08]'
-                      : 'border-white/[0.14] bg-[#090a0a] text-zinc-200 hover:border-white/30 hover:text-white'
-                  }`}
+                  className="inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-white/[0.12] bg-white/[0.03] px-3 font-mono text-[11px] font-medium text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {isPlaying ? <Square className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  {isPlaying ? 'Stop' : 'Play'}
+                  {isPlaying ? <Square className="h-3 w-3 shrink-0" /> : <Play className="h-3 w-3 shrink-0" />}
+                  <span>{isPlaying ? 'Stop' : 'Play'}</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 border-y border-white/[0.08] py-2.5">
-                <div>
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Tempo</span>
-                  <strong className="mt-1 block text-sm sm:text-base font-semibold text-white">
-                    {bpmDisplay} <span className="text-xs text-zinc-400 font-normal">BPM</span>
-                  </strong>
+              {/* Tempo / Scale / Oscillator Metrics Row */}
+              <div className="grid grid-cols-[78px_1fr_1fr] items-center border-t border-white/[0.07] pt-3">
+                <div className="pr-2.5">
+                  <span className="block font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+                    Tempo
+                  </span>
+                  <span className="mt-1 block whitespace-nowrap font-mono text-xs font-semibold tabular-nums text-white">
+                    {output ? `${bpmDisplay} BPM` : '— BPM'}
+                  </span>
                 </div>
-                <div className="border-l border-white/[0.08] pl-3">
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Scale</span>
-                  <strong className="mt-1 block truncate text-sm sm:text-base font-semibold text-white" title={String(scaleDisplay)}>
-                    {scaleDisplay}
-                  </strong>
+
+                <div className="min-w-0 border-l border-white/[0.08] px-2.5">
+                  <span className="block font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+                    Scale
+                  </span>
+                  <span
+                    title={String(scaleDisplay)}
+                    className="mt-1 block truncate font-mono text-xs font-semibold text-white"
+                  >
+                    {output ? scaleDisplay : '—'}
+                  </span>
                 </div>
-                <div className="border-l border-white/[0.08] pl-3">
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Oscillator</span>
-                  <strong className="mt-1 block truncate text-sm sm:text-base font-semibold capitalize text-white" title={String(oscDisplay)}>
+
+                <div className="min-w-0 border-l border-white/[0.08] pl-2.5">
+                  <span className="block font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+                    Oscillator
+                  </span>
+                  <span
+                    title={String(oscDisplay)}
+                    className="mt-1 block truncate font-mono text-xs font-semibold text-white"
+                  >
                     {output ? oscDisplay : '—'}
-                  </strong>
+                  </span>
                 </div>
               </div>
             </div>
