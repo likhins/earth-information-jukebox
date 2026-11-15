@@ -13,8 +13,6 @@ export default function StarText() {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    let observer: ResizeObserver | undefined;
-
     const renderText = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -84,7 +82,7 @@ export default function StarText() {
     };
 
     renderText();
-    observer = new ResizeObserver(renderText);
+    const observer = new ResizeObserver(renderText);
     observer.observe(canvas);
     return () => observer?.disconnect();
   }, []);

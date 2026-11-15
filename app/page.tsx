@@ -1,6 +1,5 @@
 // app/page.tsx
 'use client';
-
 import StarText from "./components/StarText";
 import StarHeading from "./components/StarHeading";
 import React, { useState, useCallback } from 'react';
@@ -37,13 +36,6 @@ export default function PolarisDashboard() {
     selectedCategory === 'All'
       ? EIC_DATASETS
       : EIC_DATASETS.filter((d) => d.category === selectedCategory);
-
-  useEffect(() => {
-    const updateClock = () => setUtcTime(new Date().toISOString().slice(11, 19));
-    updateClock();
-    const timer = setInterval(updateClock, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleGenerateTrack = useCallback(async () => {
     if (!latestFeatures) return;
