@@ -4,7 +4,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { SlmSonificationInput, SlmSonificationOutput } from '../lib/datasets';
-import { Play, Square, Sparkles } from 'lucide-react';
+import { Play, Square } from 'lucide-react';
+import DotMatrixText from './DotMatrixText';
+import DotMatrixWaveform from './DotMatrixWaveform';
+import DotMatrixSequencer from './DotMatrixSequencer';
 
 interface SonificationWorkstationProps {
   output: SlmSonificationOutput | null;
@@ -64,34 +67,29 @@ export function sanitizeToneNote(
   let note = trimmed;
 
   // 1. Normalize common SLM pitch typos before regex validation:
-  // Replace 'EF'/'Ef', 'AF'/'Af', 'BF'/'Bf', 'DF'/'Df', 'GF'/'Gf' with 'Eb', 'Ab', etc.
   note = note.replace(/^([A-G])[Ff]([0-7]?)$/, '$1b$2');
 
-  // 2. Convert uppercase 'B' flat suffixes like 'EB4' -> 'Eb4', 'AB3' -> 'Ab3', 'BB3' -> 'Bb3', 'EB' -> 'Eb', etc.
+  // 2. Convert uppercase 'B' flat suffixes like 'EB4' -> 'Eb4', etc.
   note = note.replace(/^([A-G])B([0-7]?)$/, '$1b$2');
 
-  // 3. Convert enharmonic equivalents: 'E#' -> 'F', 'B#' -> 'C', 'Cb' -> 'B', 'Fb' -> 'E'
+  // 3. Convert enharmonic equivalents
   note = note.replace(/^E#([0-7]?)$/, 'F$1');
   note = note.replace(/^B#([0-7]?)$/, 'C$1');
   note = note.replace(/^Cb([0-7]?)$/, 'B$1');
   note = note.replace(/^Fb([0-7]?)$/, 'E$1');
 
-  // Ensure uppercase base note letter
   if (/^[a-g]/i.test(note)) {
     note = note.charAt(0).toUpperCase() + note.slice(1);
   }
 
-  // If octave is missing (e.g. 'Eb'), default to octave 4: 'Eb4'
   if (/^[A-G][#b]?$/.test(note)) {
     note = `${note}4`;
   }
 
-  // 4. Validate against strict scientific pitch notation: /^[A-G][#b]?[0-7]$/
   if (/^[A-G][#b]?[0-7]$/.test(note)) {
     return note;
   }
 
-  // 5. If it still does not match, return fallback
   return fallback;
 }
 
@@ -113,7 +111,6 @@ export default function SonificationWorkstation({
   const [currentStep, setCurrentStep] = useState<number>(-1);
   const [elapsedMs, setElapsedMs] = useState<number>(0);
 
-  // Dedicated refs to prevent Web Audio memory leaks and enable clean disposal
   const seqRef = useRef<Tone.Sequence | null>(null);
   const leadSynthRef = useRef<Tone.PolySynth | null>(null);
   const padSynthRef = useRef<Tone.PolySynth | null>(null);
@@ -123,7 +120,6 @@ export default function SonificationWorkstation({
   const reverbRef = useRef<Tone.Reverb | null>(null);
   const outputRef = useRef<SlmSonificationOutput | null>(output);
 
-  // Timer interval calibrated to the ~47-second inference cycle
   useEffect(() => {
     if (!isInferring) return;
 
@@ -142,9 +138,8 @@ export default function SonificationWorkstation({
     try {
       Tone.getTransport().stop();
     } catch {
-      // In case Transport was not started or already stopped
+      // Ignored
     }
-
     if (seqRef.current) {
       seqRef.current.dispose();
       seqRef.current = null;
@@ -178,19 +173,16 @@ export default function SonificationWorkstation({
     setCurrentStep(-1);
   };
 
-  // Dispose all Tone.js audio nodes on component unmount
   useEffect(() => {
     return () => stopAudio();
   }, []);
 
-  // If the user triggers inference while audio is playing, stop immediately
   useEffect(() => {
     if (isInferring && isPlaying) {
       queueMicrotask(() => stopAudio());
     }
   }, [isInferring, isPlaying]);
 
-  // Keep outputRef current for 16-step sequence callback
   useEffect(() => {
     outputRef.current = output;
   }, [output]);
@@ -211,7 +203,6 @@ export default function SonificationWorkstation({
     if (!output) return;
     await Tone.start();
 
-    // Ensure any previously allocated nodes are cleaned up before creating new ones
     stopAudio();
 
     const bpm = output.musical_params?.bpm || output.tempo || 88;
@@ -220,18 +211,15 @@ export default function SonificationWorkstation({
     const rawWet = output.musical_params?.reverb_wet ?? 0.35;
     const reverbWet = clamp(rawWet, 0.1, 0.75);
 
-    // 1. Reverb node connected to destination
     const reverbNode = new Tone.Reverb({
       decay: 2.8,
       wet: reverbWet,
     }).toDestination();
     reverbRef.current = reverbNode;
 
-    // 2. Filter node routed into Reverb
     const filterNode = new Tone.Filter(filterCutoff, 'lowpass').connect(reverbNode);
     filterRef.current = filterNode;
 
-    // 3. Lead synth connected through filter -> reverb chain with maxPolyphony 16
     const leadSynth = new Tone.PolySynth(Tone.Synth, {
       maxPolyphony: 16,
       oscillator: { type: oscType },
@@ -241,7 +229,6 @@ export default function SonificationWorkstation({
     leadSynth.volume.value = -7;
     leadSynthRef.current = leadSynth;
 
-    // 4. Pad synth connected through filter -> reverb chain with maxPolyphony 16
     const padSynth = new Tone.PolySynth(Tone.Synth, {
       maxPolyphony: 16,
       oscillator: { type: 'sine' },
@@ -251,7 +238,6 @@ export default function SonificationWorkstation({
     padSynth.volume.value = -14;
     padSynthRef.current = padSynth;
 
-    // 5. Bass synth to destination
     const bassSynth = new Tone.MonoSynth({
       oscillator: { type: 'sawtooth' },
       filter: { Q: 2, type: 'lowpass', rolloff: -24 },
@@ -259,7 +245,6 @@ export default function SonificationWorkstation({
     bassSynth.volume.value = -10;
     bassSynthRef.current = bassSynth;
 
-    // 6. Pulse kick synth to destination
     const pulseSynth = new Tone.MembraneSynth().toDestination();
     pulseSynth.volume.value = -12;
     pulseSynthRef.current = pulseSynth;
@@ -273,7 +258,6 @@ export default function SonificationWorkstation({
         const currentOutput = outputRef.current;
         if (!currentOutput) return;
 
-        // Sanitize and deduplicate pad chord notes to prevent polyphony explosion
         const rawPadChord =
           currentOutput.musical_params?.pad_chord ||
           currentOutput.padChord ||
@@ -287,14 +271,13 @@ export default function SonificationWorkstation({
         );
         const validPadChord = padChord.length > 0 ? padChord : ['A3', 'E4', 'A4', 'C5'];
 
-        // Sanitize bass root note
         const rawRootNote =
           currentOutput.musical_params?.root_note ||
           currentOutput.bassRoot ||
           'A2';
         const rootNote = sanitizeToneNote(rawRootNote, 'A2') || 'A2';
 
-        // 1. Play sequenced lead note
+        // 1. Sequenced lead note
         if (currentOutput.sequence_16 && currentOutput.sequence_16[step]) {
           const stepItem = currentOutput.sequence_16[step];
           const leadNote = sanitizeToneNote(stepItem.note, 'A3');
@@ -303,12 +286,7 @@ export default function SonificationWorkstation({
 
           if (leadNote) {
             try {
-              leadSynth.triggerAttackRelease(
-                leadNote,
-                leadGate,
-                time,
-                leadVel
-              );
+              leadSynth.triggerAttackRelease(leadNote, leadGate, time, leadVel);
             } catch (err) {
               console.warn(`Tone.js lead step ${step} error:`, err);
             }
@@ -339,7 +317,7 @@ export default function SonificationWorkstation({
           }
         }
 
-        // 2. Play harmonic pad chord on bars 1 and 3 (steps 0 and 8)
+        // 2. Pad chord on bars 1 & 3 (steps 0, 8)
         if (step === 0 || step === 8) {
           try {
             padSynth.triggerAttackRelease(validPadChord, '2n', time);
@@ -348,7 +326,7 @@ export default function SonificationWorkstation({
           }
         }
 
-        // 3. Play bass root drone on 1st beat of each measure (steps 0, 4, 8, 12)
+        // 3. Bass root drone on beat 1 of measure
         if (step % 4 === 0) {
           try {
             bassSynth.triggerAttackRelease(rootNote, '8n', time);
@@ -366,25 +344,23 @@ export default function SonificationWorkstation({
     setIsPlaying(true);
   };
 
-  const bpmDisplay = output?.musical_params?.bpm ?? output?.tempo ?? '—';
-  const scaleDisplay = output?.musical_params?.scale ?? output?.scaleMode ?? '—';
+  const bpmDisplay = output?.musical_params?.bpm ?? output?.tempo ?? 88;
+  const scaleDisplay = output?.musical_params?.scale ?? output?.scaleMode ?? 'A Aeolian';
   const oscDisplay = output?.musical_params?.oscillator ?? 'triangle';
 
-  // Metrics for timer during inference
   const elapsedFraction = elapsedMs / 1000;
   const elapsedSec = Math.floor(elapsedFraction);
   const minutes = Math.floor(elapsedSec / 60);
   const seconds = elapsedSec % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  const statusMessage = getStatusMessage(elapsedSec);
 
-  // Hairline progress bar calibrated to ~48 seconds: advances to 95% over 46s, then slowly to 98%
   const progressPercent = Math.min(
     98,
     elapsedFraction < 46
       ? (elapsedFraction / 46) * 95
       : 95 + ((elapsedFraction - 46) / 10) * 3
   );
+  const statusMessage = getStatusMessage(elapsedSec);
 
   const slices =
     activeInput?.features?.slices_16 && activeInput.features.slices_16.length === 16
@@ -392,31 +368,36 @@ export default function SonificationWorkstation({
       : [0.42, 0.48, 0.55, 0.61, 0.58, 0.49, 0.38, 0.32, 0.41, 0.53, 0.67, 0.72, 0.64, 0.51, 0.44, 0.39];
 
   return (
-    <section
-      aria-label="Sonification workstation"
-      className="overflow-hidden rounded-[14px] border border-[#2a2c2b] bg-[#0c0d0d] px-3.5 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_16px_42px_rgba(0,0,0,0.22)] sm:px-4 sm:py-3.5"
+    <div
+      aria-label="Sonic studio instrument"
+      className="relative w-full font-mono select-none"
     >
+      {/* Live dot-matrix waveform visualizer spanning across */}
+      <div className="mb-3 w-full">
+        <DotMatrixWaveform isPlaying={isPlaying} />
+      </div>
+
       {isInferring ? (
-        /* MINIMALIST EDITORIAL LOADER */
-        <div className="flex flex-col justify-between gap-4 py-1.5">
+        /* MINIMALIST EDITORIAL LOADER WITH TELEMETRY EQUALIZER */
+        <div className="flex min-h-[120px] flex-col justify-between gap-4 py-2">
           {/* Top Status Line */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
-              <span className="font-sans text-xs text-zinc-300 font-normal">
+            <div className="flex items-center gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-[#e56d36] animate-pulse" />
+              <span className="font-mono text-xs text-white/85 tracking-wide">
                 {statusMessage}
               </span>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs tabular-nums text-zinc-400">
+              <span className="font-mono text-xs tabular-nums text-white/45">
                 {formattedTime}
               </span>
               {onCancel && (
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="cursor-pointer text-xs text-zinc-400 transition hover:text-white"
+                  className="cursor-pointer border-b border-white/20 pb-0.5 font-mono text-[10px] tracking-widest uppercase text-white/40 transition hover:border-white hover:text-white"
                 >
                   Cancel
                 </button>
@@ -431,7 +412,7 @@ export default function SonificationWorkstation({
               return (
                 <div
                   key={idx}
-                  className="w-1 sm:w-1.5 rounded-full bg-zinc-700 transition-all duration-300 animate-pulse"
+                  className="w-1 sm:w-1.5 rounded-full bg-white/35 transition-all duration-300 animate-pulse"
                   style={{
                     height: `${heightPercent}%`,
                     animationDelay: `${idx * 80}ms`,
@@ -443,161 +424,102 @@ export default function SonificationWorkstation({
           </div>
 
           {/* Hairline Progress Track */}
-          <div className="h-[1px] w-full overflow-hidden bg-zinc-800">
+          <div className="h-[1px] w-full overflow-hidden bg-white/10">
             <div
-              className="h-full bg-orange-500 transition-all duration-200 ease-out"
+              className="h-full bg-[#e56d36] transition-all duration-200 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
       ) : (
-        /* ACTIVE PLAYER VIEW */
-        <>
-          {output && (
-            <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.06] pb-2">
-              <span className="font-mono text-xs text-zinc-500">16-Step Pattern</span>
-              {output.source === 'slm' ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[11px] text-emerald-400/90">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  SLM Live
-                </span>
-              ) : (
-                <span
-                  title={output.fallback_reason || 'Procedural mathematical synthesis'}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] text-zinc-400"
-                >
-                  Procedural
-                </span>
-              )}
-            </div>
-          )}
+        /* ACTIVE INSTRUMENT VIEW */
+        <div className="flex flex-col gap-3.5">
+          {/* Dot-matrix 16x4 sequencer */}
+          <div className="w-full">
+            <DotMatrixSequencer
+              output={output}
+              currentStep={currentStep}
+              isPlaying={isPlaying}
+              slices={slices}
+            />
+          </div>
 
-          <div className="grid grid-cols-1 items-stretch gap-2.5 xl:grid-cols-[220px_minmax(0,1fr)] xl:gap-3">
-            {/* Transport and signal readout */}
-            <div className="flex flex-col justify-between gap-3 rounded-[10px] border border-white/[0.08] bg-[#121414] p-3">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleSonifyClick}
-                  disabled={isInferring}
-                  className="inline-flex min-h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-[#f69a68]/35 bg-[#e87943] px-3 py-1.5 text-xs font-semibold text-[#1d0e08] shadow-[0_4px_14px_rgba(232,121,67,0.15)] transition-colors hover:bg-[#f28a53] disabled:cursor-not-allowed disabled:opacity-45"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {isInferring ? 'Composing...' : 'Sonify Region'}
-                </button>
+          {/* Inline Controls & Readouts Row: Pure typography, no cards */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+            {/* Left: Primary Actions */}
+            <div className="flex items-center gap-6">
+              {/* Primary text CTA in hero style */}
+              <button
+                type="button"
+                onClick={handleSonifyClick}
+                disabled={isInferring}
+                className="group inline-flex items-center gap-2 border-b border-white/55 pb-1 font-mono text-[10px] tracking-[0.16em] text-white/90 uppercase transition hover:border-[#e56d36] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                Sonify Region
+                <span className="inline-block transition-transform group-hover:translate-x-0.5 text-[#e56d36]">→</span>
+              </button>
 
+              {/* Minimal circular play/pause icon: only shown when sonification is ready */}
+              {output && (
                 <button
                   type="button"
                   onClick={togglePlay}
-                  disabled={!output}
-                  aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
-                  className={`inline-flex min-h-9 min-w-[72px] cursor-pointer items-center justify-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-25 ${
+                  aria-label={isPlaying ? 'Stop sonification' : 'Play sonification'}
+                  title={isPlaying ? 'Stop' : 'Play'}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full border transition cursor-pointer ${
                     isPlaying
-                      ? 'border-[#f08b58]/60 bg-[#f08b58] text-[#1d0e08]'
-                      : 'border-white/[0.14] bg-[#090a0a] text-zinc-200 hover:border-white/30 hover:text-white'
+                      ? 'border-[#e56d36] text-[#e56d36] shadow-[0_0_12px_rgba(229,109,54,0.35)]'
+                      : 'border-white/30 text-white/80 hover:border-white hover:text-white'
                   }`}
                 >
-                  {isPlaying ? <Square className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  {isPlaying ? 'Stop' : 'Play'}
+                  {isPlaying ? (
+                    <Square className="h-3 w-3 fill-current" />
+                  ) : (
+                    <Play className="h-3 w-3 fill-current ml-0.5" />
+                  )}
                 </button>
-              </div>
-
-              <div className="grid grid-cols-3 border-y border-white/[0.08] py-2.5">
-                <div>
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Tempo</span>
-                  <strong className="mt-1 block text-sm sm:text-base font-semibold text-white">
-                    {bpmDisplay} <span className="text-xs text-zinc-400 font-normal">BPM</span>
-                  </strong>
-                </div>
-                <div className="border-l border-white/[0.08] pl-3">
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Scale</span>
-                  <strong className="mt-1 block truncate text-sm sm:text-base font-semibold text-white" title={String(scaleDisplay)}>
-                    {scaleDisplay}
-                  </strong>
-                </div>
-                <div className="border-l border-white/[0.08] pl-3">
-                  <span className="block text-xs uppercase tracking-wider text-zinc-400 font-medium">Oscillator</span>
-                  <strong className="mt-1 block truncate text-sm sm:text-base font-semibold capitalize text-white" title={String(oscDisplay)}>
-                    {output ? oscDisplay : '—'}
-                  </strong>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Four-lane sequence matrix */}
-            <div className="flex min-w-0 flex-col gap-2 overflow-x-auto polaris-sequencer-scroll">
-              <div className="min-w-0 space-y-2 rounded-[10px] border border-white/[0.08] bg-[#080909] p-3">
-                {[
-                  {
-                    name: 'Lead',
-                    active: (i: number) => {
-                      if (output?.sequence_16?.[i]) {
-                        const note = sanitizeToneNote(output.sequence_16[i].note);
-                        return Boolean(note);
-                      }
-                      return (output?.leadSteps?.[i] ?? -1) >= 0;
-                    },
-                    color: 'bg-[#f18a51]',
-                  },
-                  {
-                    name: 'Pad',
-                    active: (i: number) => Boolean(output && (i === 0 || i === 8)),
-                    color: 'bg-[#d4d0c8]',
-                  },
-                  {
-                    name: 'Bass',
-                    active: (i: number) => Boolean(output && i % 4 === 0),
-                    color: 'bg-[#78aaa0]',
-                  },
-                  {
-                    name: 'Pulse',
-                    active: (i: number) => {
-                      if (output?.sequence_16?.[i]) {
-                        return output.sequence_16[i].intensity > 0.35;
-                      }
-                      return Boolean(output?.pulsePattern?.[i]);
-                    },
-                    color: 'bg-[#9695d5]',
-                  },
-                ].map((stem) => (
-                  <div
-                    key={stem.name}
-                    className="grid min-w-[500px] grid-cols-[56px_repeat(16,minmax(0,1fr))] items-center gap-1.5"
-                  >
-                    <span className="w-14 text-xs font-medium text-zinc-400">{stem.name}</span>
-                    {Array.from({ length: 16 }, (_, i) => {
-                      const isOn = stem.active(i);
-                      const isCurrent = currentStep === i;
-                      return (
-                        <div
-                          key={i}
-                          className={`h-4 sm:h-5 rounded-[2px] transition-all duration-100 ${
-                            isOn ? stem.color : 'bg-white/[0.05]'
-                          } ${
-                            isCurrent
-                              ? 'outline outline-1 outline-[#f18a51] outline-offset-1 shadow-[0_0_8px_rgba(241,138,81,0.35)]'
-                              : ''
-                          }`}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
+            {/* Center / Right: Inline Telemetry Readout */}
+            <div className="flex flex-wrap items-center gap-5 font-mono text-[11px] tracking-wider text-white/50">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase text-white/35">TEMPO</span>
+                {output ? (
+                  <DotMatrixText
+                    text={String(bpmDisplay)}
+                    size={17}
+                    weight={700}
+                    step={1.9}
+                    className="h-5 w-8 inline-block align-middle"
+                  />
+                ) : (
+                  <span className="text-white/40 font-mono">—</span>
+                )}
+                <span className="text-[9px] text-white/40">BPM</span>
               </div>
-
-              {/* Clean Editorial Narration Caption */}
-              <p
-                aria-live="polite"
-                className="mt-3 font-sans text-sm font-normal leading-relaxed text-zinc-300"
-              >
-                {output
-                  ? output.narration
-                  : 'Rotate the globe or pick a preset, then click Sonify Region to compose audio.'}
-              </p>
+              <span className="text-white/20">·</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase text-white/35">SCALE</span>
+                <span className="text-white/80 uppercase font-mono">{output ? scaleDisplay : '—'}</span>
+              </div>
+              <span className="text-white/20">·</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase text-white/35">VOICE</span>
+                <span className="text-white/80 uppercase font-mono">{output ? oscDisplay : '—'}</span>
+              </div>
             </div>
           </div>
-        </>
+
+          {/* Quiet caption narration line */}
+          <p
+            aria-live="polite"
+            className="font-mono text-[11px] leading-relaxed tracking-wide text-white/40"
+          >
+            {output?.narration || 'Select a region on the globe and click Sonify Region.'}
+          </p>
+        </div>
       )}
-    </section>
+    </div>
   );
 }
