@@ -3,343 +3,561 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { EicDataset, ReticleFeatures } from '../lib/datasets';
-import { Crosshair, MapPin, ZoomIn, ZoomOut } from 'lucide-react';
+import { buildGibsTileUrl } from '../lib/gibsOffscreen';
+import { Crosshair, MapPin, Minus, Plus } from 'lucide-react';
 
 interface EarthViewportProps {
   dataset: EicDataset;
-  onSampleUpdate: (features: ReticleFeatures) => void;
+  onSampleUpdate: (features: ReticleFeatures & { zoom?: number }) => void;
+}
+
+const DEG2RAD = Math.PI / 180;
+const RAD2DEG = 180 / Math.PI;
+const MOSAIC_ZOOM = 1; // 2x2 grid of 256x256 tiles = 512x512 global texture (4x faster load)
+const TILE_SIZE = 256;
+const MOSAIC_DIM = TILE_SIZE * Math.pow(2, MOSAIC_ZOOM); // 512
+
+// Module-level cache so Blue Marble base Earth is fetched ONLY ONCE across all dataset switches
+let cachedBaseEarthCanvas: HTMLCanvasElement | null = null;
+let baseEarthPromise: Promise<HTMLCanvasElement> | null = null;
+
+function loadImage(url: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+function getBaseEarthCanvas(): Promise<HTMLCanvasElement> {
+  if (cachedBaseEarthCanvas) return Promise.resolve(cachedBaseEarthCanvas);
+  if (baseEarthPromise) return baseEarthPromise;
+
+  baseEarthPromise = (async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = MOSAIC_DIM;
+    canvas.height = MOSAIC_DIM;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+    ctx.fillStyle = '#071324';
+    ctx.fillRect(0, 0, MOSAIC_DIM, MOSAIC_DIM);
+
+    const n = Math.pow(2, MOSAIC_ZOOM);
+    const jobs: Promise<void>[] = [];
+    for (let ty = 0; ty < n; ty++) {
+      for (let tx = 0; tx < n; tx++) {
+        const url = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/2004-01-01/GoogleMapsCompatible_Level8/${MOSAIC_ZOOM}/${ty}/${tx}.jpg`;
+        jobs.push(
+          loadImage(url).then((img) => {
+            if (img) ctx.drawImage(img, tx * TILE_SIZE, ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          })
+        );
+      }
+    }
+    await Promise.all(jobs);
+
+    // Offline fallback: if GIBS Blue Marble tiles failed to load, draw local /earth.png
+    const pixelCheck = ctx.getImageData(MOSAIC_DIM / 2, MOSAIC_DIM / 2, 1, 1).data;
+    if (pixelCheck[0] === 7 && pixelCheck[1] === 19 && pixelCheck[2] === 36) {
+      const localEarth = await loadImage('/earth.png');
+      if (localEarth) {
+        ctx.drawImage(localEarth, 0, 0, MOSAIC_DIM, MOSAIC_DIM);
+      }
+    }
+
+    cachedBaseEarthCanvas = canvas;
+    return canvas;
+  })();
+
+  return baseEarthPromise;
 }
 
 export default function EarthViewport({ dataset, onSampleUpdate }: EarthViewportProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 900, height: 520 });
-  const [lat, setLat] = useState<number>(12.0);
-  const [lon, setLon] = useState<number>(45.0);
-  const [zoom, setZoom] = useState<number>(1.0);
-  const [liveVal, setLiveVal] = useState<number>(0);
+  const tmpCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const isDragging = useRef(false);
-  const lastPos = useRef({ x: 0, y: 0 });
+  const centerRef = useRef<{ lat: number; lon: number }>({ lat: 12.0, lon: 45.0 });
+  const targetRef = useRef<{ lat: number; lon: number } | null>(null);
+  const zoomRef = useRef<number>(1.0);
+  const isDraggingRef = useRef<boolean>(false);
+  const dragStartRef = useRef<{ x: number; y: number; lat: number; lon: number }>({
+    x: 0,
+    y: 0,
+    lat: 12.0,
+    lon: 45.0,
+  });
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Dirty flag: only re-raycast the sphere when orientation, zoom, size, or tile pixels change
+  const needsRenderRef = useRef<boolean>(true);
+  const isVisibleRef = useRef<boolean>(true);
+  const globalPixelsRef = useRef<Uint8ClampedArray | null>(null);
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        if (width > 0 && height > 0) {
-          setCanvasSize({ width: Math.floor(width), height: Math.floor(height) });
-        }
+  const [hudCoords, setHudCoords] = useState({ lat: 12.0, lon: 45.0 });
+  const [hudValue, setHudValue] = useState<number>(
+    (dataset.minVal + dataset.maxVal) / 2
+  );
+  const [zoomLabel, setZoomLabel] = useState<string>('1.0x');
+
+  const emitReticleSample = useCallback(
+    (lat: number, lon: number, zoom: number) => {
+      const pixels = globalPixelsRef.current;
+      let norm = 0.5;
+      const qNorms: [number, number, number, number] = [0.5, 0.5, 0.5, 0.5];
+      let gradient = 0.25;
+
+      if (pixels) {
+        const clampedLat = Math.max(-85.05, Math.min(85.05, lat));
+        const xNorm = ((((lon + 180) % 360) + 360) % 360) / 360;
+        const latRad = clampedLat * DEG2RAD;
+        const yNorm =
+          (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2;
+
+        const cx = Math.floor(xNorm * (MOSAIC_DIM - 1));
+        const cy = Math.max(
+          0,
+          Math.min(MOSAIC_DIM - 1, Math.floor(yNorm * (MOSAIC_DIM - 1)))
+        );
+
+        const sampleAt = (sx: number, sy: number) => {
+          const wx = ((sx % MOSAIC_DIM) + MOSAIC_DIM) % MOSAIC_DIM;
+          const wy = Math.max(0, Math.min(MOSAIC_DIM - 1, sy));
+          const idx = (wy * MOSAIC_DIM + wx) * 4;
+          const a = pixels[idx + 3];
+          if (a === 0) return 0.2;
+          return (
+            (0.299 * pixels[idx] + 0.587 * pixels[idx + 1] + 0.114 * pixels[idx + 2]) /
+            255
+          );
+        };
+
+        qNorms[0] = sampleAt(cx - 3, cy - 3);
+        qNorms[1] = sampleAt(cx + 3, cy - 3);
+        qNorms[2] = sampleAt(cx - 3, cy + 3);
+        qNorms[3] = sampleAt(cx + 3, cy + 3);
+        norm = (qNorms[0] + qNorms[1] + qNorms[2] + qNorms[3]) / 4;
+        gradient = Math.min(1, (Math.max(...qNorms) - Math.min(...qNorms)) * 2.5);
       }
-    });
 
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
+      const mapVal = (n: number) =>
+        dataset.minVal + n * (dataset.maxVal - dataset.minVal);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+      const windowMean = mapVal(norm);
+      setHudValue(windowMean);
 
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.15 : -0.15;
-      setZoom((prev) => Math.max(0.85, Math.min(4.5, +(prev + delta).toFixed(2))));
-    };
-
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, []);
-
-  const computeFeatures = useCallback(
-    (currentLat: number, currentLon: number, currentZoom: number) => {
-      const radLat = (currentLat * Math.PI) / 180;
-      const radLon = (currentLon * Math.PI) / 180;
-
-      const signal =
-        0.5 +
-        0.28 * Math.sin(radLon * 2 + dataset.id.length) * Math.cos(radLat * 1.5) +
-        0.18 * Math.cos(radLat * 3 - radLon);
-
-      const clamped = Math.max(0, Math.min(1, signal));
-      const span = dataset.maxVal - dataset.minVal;
-      const windowMean = dataset.minVal + clamped * span;
-
-      const quadrantMeans: [number, number, number, number] = [
-        dataset.minVal + Math.max(0, Math.min(1, clamped + 0.08 * Math.sin(radLon))) * span,
-        dataset.minVal + Math.max(0, Math.min(1, clamped - 0.06 * Math.cos(radLat))) * span,
-        dataset.minVal + Math.max(0, Math.min(1, clamped + 0.11 * Math.cos(radLon * 2))) * span,
-        dataset.minVal + Math.max(0, Math.min(1, clamped - 0.09 * Math.sin(radLat * 2))) * span,
-      ];
-
-      const spatialGradient = Math.abs(Math.sin(radLat * 2.5) * Math.cos(radLon * 2.5));
-
-      setLiveVal(windowMean);
       onSampleUpdate({
         datasetId: dataset.id,
-        lat: currentLat,
-        lon: currentLon,
-        zoom: currentZoom,
+        lat,
+        lon,
+        zoom,
         windowMean,
-        quadrantMeans,
-        spatialGradient,
+        quadrantMeans: [
+          mapVal(qNorms[0]),
+          mapVal(qNorms[1]),
+          mapVal(qNorms[2]),
+          mapVal(qNorms[3]),
+        ],
+        spatialGradient: gradient,
       });
     },
     [dataset, onSampleUpdate]
   );
 
+  // 1. Composite cached Blue Marble Earth immediately, then stream the 4 dataset tiles progressively
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => computeFeatures(lat, lon, zoom));
-    return () => window.cancelAnimationFrame(frame);
-  }, [lat, lon, zoom, dataset, computeFeatures]);
+    let cancelled = false;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = MOSAIC_DIM;
+    offscreen.height = MOSAIC_DIM;
+    const ctx = offscreen.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
 
+    const commitBuffer = () => {
+      if (cancelled) return;
+      globalPixelsRef.current = ctx.getImageData(0, 0, MOSAIC_DIM, MOSAIC_DIM).data;
+      needsRenderRef.current = true;
+      emitReticleSample(centerRef.current.lat, centerRef.current.lon, zoomRef.current);
+    };
+
+    (async () => {
+      // Paint cached Blue Marble continents right away (0ms on every dataset switch after first load)
+      const baseCanvas = await getBaseEarthCanvas();
+      if (cancelled) return;
+      ctx.drawImage(baseCanvas, 0, 0);
+      commitBuffer();
+
+      // Stream the 4 scientific GIBS tiles (z=1) and repaint as each one arrives
+      const n = Math.pow(2, MOSAIC_ZOOM);
+      const dataGibs = { ...dataset.gibs, zoom: MOSAIC_ZOOM };
+
+      for (let ty = 0; ty < n; ty++) {
+        for (let tx = 0; tx < n; tx++) {
+          const url = buildGibsTileUrl(dataGibs, tx, ty);
+          loadImage(url).then((img) => {
+            if (!img || cancelled) return;
+            ctx.globalAlpha = dataset.id === 'nightlights_change' ? 0.92 : 0.82;
+            ctx.drawImage(img, tx * TILE_SIZE, ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.globalAlpha = 1.0;
+            commitBuffer();
+          });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dataset, emitReticleSample]);
+
+  // 2. Observe visibility & container resize
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting) needsRenderRef.current = true;
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+
+    const ro = new ResizeObserver(() => {
+      needsRenderRef.current = true;
+    });
+    ro.observe(el);
+
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+    };
+  }, []);
+
+  // 3. On-Demand 3D Orthographic Globe Renderer (zero CPU/GPU work when idle)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const { width, height } = canvasSize;
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
-
-    const cx = width / 2;
-    // Bias the globe upward to keep its lower edge clear of the fixed color-scale rail.
-    const cy = height * 0.47;
-    const radius = Math.min(width * 0.46, height * 0.46) * zoom;
-
-    ctx.clearRect(0, 0, width, height);
-
-    // Restrained starfield to connect the workspace to the landing hero.
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    for (let s = 0; s < 55; s++) {
-      const sx = ((s * 197) % width);
-      const sy = ((s * 313) % height);
-      const r = s % 3 === 0 ? 1.1 : 0.65;
-      ctx.beginPath();
-      ctx.arc(sx, sy, r, 0, Math.PI * 2);
-      ctx.fill();
+    if (!tmpCanvasRef.current) {
+      tmpCanvasRef.current = document.createElement('canvas');
     }
 
-    // Faint atmospheric edge; the data field itself remains dataset-driven.
-    const halo = ctx.createRadialGradient(cx, cy, radius * 0.88, cx, cy, radius * 1.22);
-    halo.addColorStop(0, 'rgba(255, 255, 255, 0.055)');
-    halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 1.22, 0, Math.PI * 2);
-    ctx.fill();
+    let rafId = 0;
 
-    // Globe sphere — dataset colors and all sampling geometry are preserved.
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.clip();
+    const renderGlobe = () => {
+      rafId = requestAnimationFrame(renderGlobe);
+      if (!isVisibleRef.current) return;
 
-    const sphereGrad = ctx.createRadialGradient(
-      cx - radius * 0.28,
-      cy - radius * 0.28,
-      radius * 0.06,
-      cx,
-      cy,
-      radius
-    );
-    sphereGrad.addColorStop(0, dataset.fallbackColors[2]);
-    sphereGrad.addColorStop(0.55, dataset.fallbackColors[1]);
-    sphereGrad.addColorStop(1, dataset.fallbackColors[0]);
-    ctx.fillStyle = sphereGrad;
-    ctx.fillRect(0, 0, width, height);
+      // Animate smooth fly-to hotspot
+      if (targetRef.current) {
+        const dLat = targetRef.current.lat - centerRef.current.lat;
+        let dLon = targetRef.current.lon - centerRef.current.lon;
+        if (dLon > 180) dLon -= 360;
+        if (dLon < -180) dLon += 360;
 
-    const lonRad = (lon * Math.PI) / 180;
-    const latRad = (lat * Math.PI) / 180;
-
-    // Organic data contours.
-    for (let i = -5; i <= 5; i++) {
-      const bandY = cy + (i / 5) * radius * 0.85 + Math.sin(latRad) * (radius * 0.14);
-      ctx.beginPath();
-      for (let x = Math.max(0, cx - radius); x <= Math.min(width, cx + radius); x += 8) {
-        const nx = (x - cx) / radius;
-        const wave =
-          Math.sin(nx * 3.5 + lonRad + i) * (radius * 0.08) +
-          Math.cos(nx * 6 - lonRad * 1.4) * (radius * 0.04);
-        if (x <= Math.max(0, cx - radius) + 8) ctx.moveTo(x, bandY + wave);
-        else ctx.lineTo(x, bandY + wave);
+        if (Math.abs(dLat) < 0.08 && Math.abs(dLon) < 0.08) {
+          centerRef.current = { ...targetRef.current };
+          targetRef.current = null;
+          setHudCoords({ ...centerRef.current });
+          emitReticleSample(centerRef.current.lat, centerRef.current.lon, zoomRef.current);
+        } else {
+          centerRef.current.lat += dLat * 0.14;
+          centerRef.current.lon =
+            ((centerRef.current.lon + dLon * 0.14 + 540) % 360) - 180;
+          setHudCoords({ ...centerRef.current });
+        }
+        needsRenderRef.current = true;
       }
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.105)';
-      ctx.lineWidth = 1.15;
-      ctx.stroke();
-    }
 
-    // Subtle geographic graticules.
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.065)';
-    ctx.lineWidth = 0.85;
-    for (let g = -2; g <= 2; g++) {
+      if (!needsRenderRef.current) return;
+      needsRenderRef.current = false;
+
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+      const baseRadius = Math.min(width, height) * 0.36 * zoomRef.current;
+
+      // Outer atmospheric halo
+      const halo = ctx.createRadialGradient(
+        cx,
+        cy,
+        baseRadius * 0.92,
+        cx,
+        cy,
+        baseRadius * 1.16
+      );
+      halo.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
+      halo.addColorStop(0.55, 'rgba(239, 132, 80, 0.12)');
+      halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, radius * Math.cos((g * Math.PI) / 6), radius, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.arc(cx, cy, baseRadius * 1.16, 0, Math.PI * 2);
+      ctx.fill();
+
+      const pixels = globalPixelsRef.current;
+      if (!pixels) return;
+
+      const step = 2;
+      const rInt = Math.ceil(baseRadius);
+      const minX = Math.max(0, Math.floor(cx - rInt));
+      const maxX = Math.min(width - 1, Math.ceil(cx + rInt));
+      const minY = Math.max(0, Math.floor(cy - rInt));
+      const maxY = Math.min(height - 1, Math.ceil(cy + rInt));
+
+      const boxW = Math.ceil((maxX - minX) / step);
+      const boxH = Math.ceil((maxY - minY) / step);
+      if (boxW <= 0 || boxH <= 0) return;
+
+      const imgData = ctx.createImageData(boxW, boxH);
+      const out = imgData.data;
+
+      const lat0 = centerRef.current.lat * DEG2RAD;
+      const lon0 = centerRef.current.lon * DEG2RAD;
+      const sinLat0 = Math.sin(lat0);
+      const cosLat0 = Math.cos(lat0);
+      const invR = 1 / baseRadius;
+
+      for (let py = 0; py < boxH; py++) {
+        const yNorm = (minY + py * step - cy) * invR;
+        const y2 = yNorm * yNorm;
+        if (y2 >= 1) continue;
+
+        for (let px = 0; px < boxW; px++) {
+          const xNorm = (minX + px * step - cx) * invR;
+          const rho2 = xNorm * xNorm + y2;
+          if (rho2 > 1) continue;
+
+          const z = Math.sqrt(1 - rho2);
+          const lat = Math.asin(z * sinLat0 - yNorm * cosLat0);
+          const lon = lon0 + Math.atan2(xNorm, z * cosLat0 + yNorm * sinLat0);
+
+          const u = ((((lon * RAD2DEG + 180) % 360) + 360) % 360) / 360;
+          const clampedLat = Math.max(-1.4844, Math.min(1.4844, lat));
+          const v =
+            (1 - Math.log(Math.tan(clampedLat) + 1 / Math.cos(clampedLat)) / Math.PI) / 2;
+
+          const tx = Math.floor(u * (MOSAIC_DIM - 1));
+          const ty = Math.max(
+            0,
+            Math.min(MOSAIC_DIM - 1, Math.floor(v * (MOSAIC_DIM - 1)))
+          );
+          const srcIdx = (ty * MOSAIC_DIM + tx) * 4;
+
+          const shade =
+            0.42 + 0.58 * Math.max(0, z * 0.85 - xNorm * 0.35 - yNorm * 0.25);
+
+          const dstIdx = (py * boxW + px) * 4;
+          out[dstIdx] = Math.min(255, pixels[srcIdx] * shade);
+          out[dstIdx + 1] = Math.min(255, pixels[srcIdx + 1] * shade);
+          out[dstIdx + 2] = Math.min(255, pixels[srcIdx + 2] * shade);
+          out[dstIdx + 3] = 255;
+        }
+      }
+
+      const tmp = tmpCanvasRef.current!;
+      if (tmp.width !== boxW || tmp.height !== boxH) {
+        tmp.width = boxW;
+        tmp.height = boxH;
+      }
+      const tmpCtx = tmp.getContext('2d');
+      if (tmpCtx) {
+        tmpCtx.putImageData(imgData, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(tmp, minX, minY, boxW * step, boxH * step);
+      }
+
+      ctx.strokeStyle = 'rgba(239, 132, 80, 0.55)';
+      ctx.lineWidth = 1.5 * dpr;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, radius, radius * Math.cos((g * Math.PI) / 6), 0, 0, Math.PI * 2);
+      ctx.arc(cx, cy, baseRadius, 0, Math.PI * 2);
       ctx.stroke();
-    }
+    };
 
-    const innerShadow = ctx.createRadialGradient(cx, cy, radius * 0.72, cx, cy, radius);
-    innerShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    innerShadow.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
-    ctx.fillStyle = innerShadow;
-    ctx.fillRect(0, 0, width, height);
+    rafId = requestAnimationFrame(renderGlobe);
+    return () => cancelAnimationFrame(rafId);
+  }, [emitReticleSample]);
 
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-    ctx.lineWidth = 0.9;
-    ctx.stroke();
-  }, [dataset, lat, lon, zoom, canvasSize]);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    isDragging.current = true;
-    lastPos.current = { x: e.clientX, y: e.clientY };
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    targetRef.current = null;
+    isDraggingRef.current = true;
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      lat: centerRef.current.lat,
+      lon: centerRef.current.lon,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current) return;
-    const dx = e.clientX - lastPos.current.x;
-    const dy = e.clientY - lastPos.current.y;
-    lastPos.current = { x: e.clientX, y: e.clientY };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    const sensitivity = 0.35 / zoomRef.current;
 
-    const sensitivity = 0.35 / Math.sqrt(zoom);
-    setLon((prev) => ((prev - dx * sensitivity + 540) % 360) - 180);
-    setLat((prev) => Math.max(-85, Math.min(85, prev + dy * sensitivity)));
+    const nextLat = Math.max(
+      -82,
+      Math.min(82, dragStartRef.current.lat + dy * sensitivity)
+    );
+    const nextLon =
+      ((((dragStartRef.current.lon - dx * sensitivity + 180) % 360) + 360) % 360) -
+      180;
+
+    centerRef.current = { lat: nextLat, lon: nextLon };
+    needsRenderRef.current = true;
+    setHudCoords({ lat: nextLat, lon: nextLon });
   };
 
-  const handlePointerUp = () => {
-    isDragging.current = false;
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    emitReticleSample(centerRef.current.lat, centerRef.current.lon, zoomRef.current);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') setLon((p) => ((p - 5 + 540) % 360) - 180);
-    if (e.key === 'ArrowRight') setLon((p) => ((p + 5 + 540) % 360) - 180);
-    if (e.key === 'ArrowUp') setLat((p) => Math.min(85, p + 5));
-    if (e.key === 'ArrowDown') setLat((p) => Math.max(-85, p - 5));
-    if (e.key === '+' || e.key === '=') setZoom((z) => Math.min(4.5, +(z + 0.2).toFixed(2)));
-    if (e.key === '-') setZoom((z) => Math.max(0.85, +(z - 0.2).toFixed(2)));
+  const adjustZoom = (delta: number | 'fit') => {
+    const nextZoom =
+      delta === 'fit'
+        ? 1.0
+        : Math.max(0.7, Math.min(2.4, Number((zoomRef.current + delta).toFixed(2))));
+    zoomRef.current = nextZoom;
+    needsRenderRef.current = true;
+    setZoomLabel(`${nextZoom.toFixed(1)}x`);
+    emitReticleSample(centerRef.current.lat, centerRef.current.lon, nextZoom);
   };
+
+  const flyToHotspot = (lat: number, lon: number) => {
+    targetRef.current = { lat, lon };
+    needsRenderRef.current = true;
+  };
+
+  const latDir = hudCoords.lat >= 0 ? 'N' : 'S';
+  const lonDir = hudCoords.lon >= 0 ? 'E' : 'W';
 
   return (
-    <section
-      aria-label="Earth visualization viewport"
-      className="polaris-instrument-surface relative h-full w-full select-none overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#080909] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
+    <div
+      ref={containerRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      className="relative h-full w-full select-none overflow-hidden rounded-2xl border border-white/[0.1] bg-[#06080b] cursor-grab active:cursor-grabbing"
     >
       <div
-        ref={containerRef}
-        tabIndex={0}
-        role="application"
-        aria-label="Interactive Earth globe. Drag or use arrow keys to rotate, scroll wheel or plus and minus to zoom."
-        onKeyDown={handleKeyDown}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        className="absolute inset-0 h-full w-full cursor-grab touch-none focus:outline-none active:cursor-grabbing"
-      >
-        <canvas ref={canvasRef} className="block h-full w-full" />
-      </div>
-
-      {/* Dataset identity */}
-      <div className="pointer-events-none absolute left-4 top-4 z-10 flex items-center gap-2.5 rounded-md border border-white/15 bg-black/75 px-3 py-1.5 font-mono text-xs sm:text-sm font-medium text-slate-100 uppercase tracking-wider backdrop-blur-md sm:left-6 sm:top-5">
-        <Crosshair className="h-3.5 w-3.5 text-zinc-300" />
-        <span className="text-white font-semibold">{dataset.shortCode}</span>
-        <span className="text-zinc-500">/</span>
-        <span className="max-w-[42vw] truncate text-zinc-300">{dataset.name}</span>
-      </div>
-
-      {/* Coordinate and live value readout */}
-      <div className="pointer-events-none absolute right-4 top-4 z-10 hidden rounded-md border border-white/15 bg-black/75 px-3 py-1.5 font-mono text-xs sm:text-sm font-medium text-slate-100 backdrop-blur-md sm:block sm:right-6 sm:top-5">
-        {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'}&nbsp;&nbsp;
-        {Math.abs(lon).toFixed(1)}°{lon >= 0 ? 'E' : 'W'}
-        <span className="mx-2.5 text-zinc-500">/</span>
-        <span className="text-orange-400 font-semibold">{liveVal.toFixed(2)} {dataset.unit}</span>
-      </div>
-
-      {/* Sampling reticle */}
-      <div
+        className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(148,163,184,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.16)_1px,transparent_1px)] [background-size:48px_48px]"
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[45%] z-10 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-      >
-        <span className="absolute left-0 top-0 h-3.5 w-3.5 border-l border-t border-white/70" />
-        <span className="absolute right-0 top-0 h-3.5 w-3.5 border-r border-t border-white/70" />
-        <span className="absolute bottom-0 left-0 h-3.5 w-3.5 border-b border-l border-white/70" />
-        <span className="absolute bottom-0 right-0 h-3.5 w-3.5 border-b border-r border-white/70" />
-        <span className="h-1 w-1 rounded-full bg-white/90" />
-        <span className="absolute -bottom-5 font-mono text-xs uppercase tracking-wider text-zinc-400 font-medium">256×256 ROI</span>
+      />
+
+      <canvas ref={canvasRef} className="block h-full w-full" />
+
+      {/* Top-Left Dataset Pill */}
+      <div className="pointer-events-none absolute left-3.5 top-3.5 flex items-center gap-2 rounded-lg border border-white/[0.1] bg-black/75 px-3 py-1.5 font-mono text-[10px] tracking-wider uppercase backdrop-blur-md">
+        <Crosshair className="h-3.5 w-3.5 text-[#ef8450]" />
+        <span className="font-semibold text-white">{dataset.shortCode}</span>
+        <span className="text-white/30">/</span>
+        <span className="text-zinc-300">{dataset.name}</span>
       </div>
 
-      {/* Zoom controls */}
-      <div className="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl border border-white/[0.14] bg-[#111313]/90 p-1.5 font-mono text-xs text-zinc-200 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-md sm:right-6">
+      {/* Top-Right Telemetry Readout */}
+      <div className="pointer-events-none absolute right-3.5 top-3.5 rounded-lg border border-white/[0.1] bg-black/75 px-3 py-1.5 font-mono text-[11px] tabular-nums backdrop-blur-md">
+        <span className="text-zinc-300">
+          {Math.abs(hudCoords.lat).toFixed(1)}°{latDir}{' '}
+          {Math.abs(hudCoords.lon).toFixed(1)}°{lonDir}
+        </span>
+        <span className="mx-2 text-white/25">/</span>
+        <span className="font-semibold text-[#f0a078]">
+          {hudValue.toFixed(2)} {dataset.unit}
+        </span>
+      </div>
+
+      {/* Center 256x256 ROI Reticle Overlay */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="relative h-40 w-40 sm:h-48 sm:w-48">
+          <span className="absolute left-0 top-0 h-3 w-3 border-l-2 border-t-2 border-white/75" />
+          <span className="absolute right-0 top-0 h-3 w-3 border-r-2 border-t-2 border-white/75" />
+          <span className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-white/75" />
+          <span className="absolute bottom-0 right-0 h-3 w-3 border-b-2 border-r-2 border-white/75" />
+          <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_8px_#fff]" />
+          <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[9px] tracking-[0.2em] text-white/55">
+            256×256 ROI
+          </span>
+        </div>
+      </div>
+
+      {/* Right Zoom Control Stack */}
+      <div
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute right-3.5 top-1/2 flex -translate-y-1/2 flex-col items-center gap-1 rounded-xl border border-white/[0.1] bg-black/80 p-1.5 font-mono text-[10px] backdrop-blur-md"
+      >
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.min(4.5, +(z + 0.25).toFixed(2)))}
+          onClick={() => adjustZoom(0.2)}
           aria-label="Zoom in"
-          className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          className="cursor-pointer rounded-md p-1.5 text-zinc-300 hover:bg-white/10 hover:text-white"
         >
-          <ZoomIn className="h-4 w-4" />
+          <Plus className="h-3.5 w-3.5" />
         </button>
-        <span className="py-0.5 font-semibold text-white">{zoom.toFixed(1)}×</span>
+        <span className="py-0.5 text-[9px] tabular-nums text-zinc-400">{zoomLabel}</span>
         <button
           type="button"
-          onClick={() => setZoom(1.0)}
-          aria-label="Fit globe to view"
-          title="Fit globe to view"
-          className="cursor-pointer rounded-lg px-2 py-1 font-mono text-xs font-semibold tracking-wider text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          onClick={() => adjustZoom('fit')}
+          className="cursor-pointer rounded-md px-1.5 py-1 text-[9px] uppercase text-zinc-400 hover:bg-white/10 hover:text-white"
         >
           FIT
         </button>
         <button
           type="button"
-          onClick={() => setZoom((z) => Math.max(0.85, +(z - 0.25).toFixed(2)))}
+          onClick={() => adjustZoom(-0.2)}
           aria-label="Zoom out"
-          className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-[#e7824d]/15 hover:text-[#f0a078]"
+          className="cursor-pointer rounded-md p-1.5 text-zinc-300 hover:bg-white/10 hover:text-white"
         >
-          <ZoomOut className="h-4 w-4" />
+          <Minus className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      {/* Color scale and geographic presets */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-white/[0.13] bg-[#090a0a]/92 px-4 py-3.5 font-mono backdrop-blur-xl sm:px-6">
-        <div className="flex items-center gap-2.5">
-          <span className="text-xs text-zinc-300 font-mono font-medium">{dataset.minVal}</span>
-          <div
-            role="img"
-            aria-label={`Color scale from ${dataset.minVal} to ${dataset.maxVal} ${dataset.unit}`}
-            className="h-2 w-28 overflow-hidden rounded-full border border-white/10"
-            style={{ background: dataset.colorGradient }}
-          />
-          <span className="text-xs text-zinc-300 font-mono font-medium">{dataset.maxVal} {dataset.unit}</span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          {dataset.hotspots.map((spot) => (
-            <button
-              key={spot.id}
-              type="button"
-              onClick={() => {
-                setLat(spot.lat);
-                setLon(spot.lon);
-              }}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:border-orange-500/50 hover:bg-orange-500/10 hover:text-white"
-            >
-              <MapPin className="h-3.5 w-3.5 text-orange-400" />
-              {spot.label}
-            </button>
-          ))}
-        </div>
+      {/* Bottom-Left Colorbar Scale */}
+      <div className="pointer-events-none absolute bottom-3.5 left-3.5 flex items-center gap-2 rounded-lg border border-white/[0.1] bg-black/75 px-3 py-1.5 font-mono text-[10px] tabular-nums backdrop-blur-md">
+        <span className="text-zinc-400">{dataset.minVal}</span>
+        <span
+          className="h-2 w-24 rounded-full"
+          style={{ background: dataset.colorGradient }}
+        />
+        <span className="text-zinc-300">
+          {dataset.maxVal} {dataset.unit}
+        </span>
       </div>
-    </section>
+
+      {/* Bottom-Right Hotspot Quick-Jump Pills */}
+      <div
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute bottom-3.5 right-3.5 flex flex-wrap justify-end gap-1.5"
+      >
+        {dataset.hotspots.map((spot) => (
+          <button
+            key={spot.id}
+            type="button"
+            onClick={() => flyToHotspot(spot.lat, spot.lon)}
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.12] bg-black/80 px-2.5 py-1.5 font-mono text-[10px] text-zinc-200 backdrop-blur-md transition hover:border-[#ef8450]/60 hover:text-white"
+          >
+            <MapPin className="h-3 w-3 text-[#ef8450]" />
+            {spot.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
